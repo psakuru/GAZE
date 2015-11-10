@@ -3,6 +3,7 @@
 #include<boost/graph/adjacency_list.hpp>
 #include "alpha_beta.hpp"
 #include<climits>
+#include "logging.hpp"
 
 using namespace std;
 
@@ -38,7 +39,7 @@ int main() {
   Graph g(10);
   make_graph(g);
   Vertex first = *boost::vertices(g).first;
-  std::cout<<alphabeta(g, 0, 10, INT_MIN, INT_MAX, true, [](auto v) {
+  auto ret = alphabeta(g, 0, 10, INT_MIN, INT_MAX, true, [](auto v) {
             switch(v) {
                 case 10: return 4;
                          break;
@@ -70,7 +71,8 @@ int main() {
 
             }
           
-        })<<std::endl;
+        });
+  std::cout<<"val = "<<ret.first<<" vertex="<<ret.second<<std::endl;
 
   return 0;
 }
