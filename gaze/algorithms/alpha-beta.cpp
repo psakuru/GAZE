@@ -31,7 +31,7 @@ namespace gaze{
     
     Vertex vert_;
     if(player1) {
-      game_state_value v_ = game_traits<game_state>::min_state_value();
+      game_state_value v_ = game_traits<game_tree>::game_state_descriptor::min_state_value();
       for(std::tie(out_i, out_end) = cur_.get_children(); out_i != out_end; ++out_i) {
         vert_ = *out_i;
         v_ = std::max(v_, alphabeta(gt_, depth-1, alpha, beta, !player1, vert_).first);
@@ -41,7 +41,7 @@ namespace gaze{
       }
       return std::make_pair(v_,vert_);
     } else {
-      game_state_value v_ = game_traits<game_state>::max_state_value();
+      game_state_value v_ = game_traits<game_tree>::game_state_descriptor::max_state_value();
       for(std::tie(out_i, out_end) = cur_.get_children(); out_i != out_end; ++out_i) {
         vert_ = *out_i;
         v_ = std::min(v_, alphabeta(gt_, depth-1, alpha, beta, !player1, vert_).first);
