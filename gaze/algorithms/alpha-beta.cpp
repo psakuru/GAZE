@@ -7,21 +7,31 @@
 
 namespace gaze{
   template<typename game_tree>
-  std::pair<int, game_tree::vertex_descriptor> alphabeta(const game_tree& gt_, int depth, int alpha, int beta, bool player1) {
+  std::pair<int, game_traits<game_tree>::game_state_descriptor> alphabeta(const game_tree& gt_, 
+                                                                          int depth, 
+                                                                          game_traits<game_tree>::state_value_descrpitor alpha, 
+                                                                          game_traits<game_tree>::state_value_descrpitor beta, 
+                                                                          bool player1) {
     return alphabeta(gt_, depth, alpha, beta, player1, gt_.get_current_vertex()); 
   }
 
   template<typename game_tree>
-  std::pair<int, game_tree::vertex_descriptor> alphabeta(const game_tree& gt_, int depth_, int alpha, int beta, bool player1, const game_tree::vertex_descriptor cur_) {
-    typedef typename gaze::game_tree::vertex_descriptor Vertex;
-    typename gaze::game_tree::child_iterator out_i, out_end;
+  std::pair<int, game_traits<game_tree>::game_state_descriptor> alphabeta(const game_tree& gt_, 
+                                                                          int depth_, 
+                                                                          game_traits<game_tree>::state_value_descrpitor alpha, 
+                                                                          game_traits<game_tree>::state_value_descrpitor beta, 
+                                                                          bool player1, 
+                                                                          const game_traits<game_tree>::game_state_descriptor& cur_) {
+    typedef typename game_traits<game_tree>::game_state_descriptor Vertex;
+    typename game_traits<game_tree>::child_iterator out_i, out_end;
+    typedef typename game_traits<game_tree>::state_value_descriptor game_state_value;
     
     if(depth_ == 0 || cur_.get_children_count() == 0)
       return std::make_pair(cur_.get_value(), cur_);
     
     Vertex vert_;
     if(player1) {
-      int v_ = INT_MIN;
+      game_state_value v_ = game_traits<game_state>::min_state_value();
       for(std::tie(out_i, out_end) = cur_.get_children(); out_i != out_end; ++out_i) {
         vert_ = *out_i;
         v_ = std::max(v_, alphabeta(gt_, depth-1, alpha, beta, !player1, vert_).first);
@@ -31,7 +41,7 @@ namespace gaze{
       }
       return std::make_pair(v_,vert_);
     } else {
-      int v_ = INT_MAX;
+      game_state_value v_ = game_traits<game_state>::max_state_value();
       for(std::tie(out_i, out_end) = cur_.get_children(); out_i != out_end; ++out_i) {
         vert_ = *out_i;
         v_ = std::min(v_, alphabeta(gt_, depth-1, alpha, beta, !player1, vert_).first);
