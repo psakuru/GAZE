@@ -28,8 +28,10 @@ void init() {
   auto iter_pair = vertex.get_children();
   gaze::game_tree<state>::vertex_iterator it=iter_pair.first;
   gaze::game_tree<state>::vertex_iterator eit=iter_pair.second;
-  //it==eit;
-  it++;
+
+  it++;//working
+  (*it);//not working
+
   //(*it).get_state().print();
   //for(gaze::game_tree<state>::vertex_iterator it=iter_pair.first;it!=iter_pair.second;it++)
    // (*it).get_state().print();
