@@ -16,7 +16,7 @@ public:
   viterator operator++(int) {viterator res(*this); ++(*this); return res;}
   bool operator==(const viterator& rhs) { return it==rhs.it; }
   bool operator!=(const viterator& rhs) { return it!=rhs.it; }
-  vertex& operator*() { return *it; }
+  edge_iter& operator*() { return it; }
 };
 
 template<typename game_tree>
