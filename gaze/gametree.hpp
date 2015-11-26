@@ -12,7 +12,7 @@ class viterator : public std::iterator<std::forward_iterator_tag, vertex>{
 public:
   viterator(edge_iter it): it(it) {}
   viterator& operator=(const viterator& rhs) { return *this; }
-  viterator& operator++() {++it; return *this;};
+  viterator operator++() {++it; return *this;};
   viterator operator++(int) {viterator res(*this); ++(*this); return res;}
   bool operator==(const viterator& rhs) { return it==rhs.it; }
   bool operator!=(const viterator& rhs) { return it!=rhs.it; }
