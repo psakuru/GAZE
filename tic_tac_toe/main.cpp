@@ -58,8 +58,11 @@ class gameState{
 
     int get_value() {
       for(int i = 0; i<8;i++){
-        if(win_moves[i][0] != gameState::option::B && (win_moves[i][0] == win_moves[i][1] && win_moves[i][0] == win_moves[i][2]))
+        if(squares[win_moves[i][0]] != gameState::option::B && (squares[win_moves[i][0]] == squares[win_moves[i][1]] && squares[win_moves[i][0]] == squares[win_moves[i][2]]))
+          if(squares[win_moves[i][0]] == gameState::option::X )
             return gameState::max_state_value();
+          else
+            return gameState::min_state_value();
       } 
       return 0;
     }
@@ -95,18 +98,20 @@ class gameState{
 
 };
 
-  ostream& operator<<(ostream& os, const gameState& gt) {
-    for(int i = 0;i<gt.board_size;i++){
-      if(gt.squares[i] == gameState::option::X)
-        os<<"X";
-      else if(gt.squares[i] == gameState::option::O)
-        os<<"O";
-      else
-        os<<"B";
-    }
-    os<<std::endl;
-    return os;
+constexpr int gameState::win_moves[8][3];
+
+ostream& operator<<(ostream& os, const gameState& gt) {
+  for(int i = 0;i<gt.board_size;i++){
+    if(gt.squares[i] == gameState::option::X)
+      os<<"X";
+    else if(gt.squares[i] == gameState::option::O)
+      os<<"O";
+    else
+      os<<"B";
   }
+  os<<std::endl;
+  return os;
+}
 
 int main(){
   gameState g;
