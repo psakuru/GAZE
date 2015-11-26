@@ -29,8 +29,8 @@ void init() {
   gaze::game_tree<state>::vertex_iterator it=iter_pair.first;
   gaze::game_tree<state>::vertex_iterator eit=iter_pair.second;
   //it==eit;
-  //it++;
-  (*it).get_state().print();
+  it++;
+  //(*it).get_state().print();
   //for(gaze::game_tree<state>::vertex_iterator it=iter_pair.first;it!=iter_pair.second;it++)
    // (*it).get_state().print();
   //for_each(iter_pair.first, iter_pair.second, [](auto st) { st.print(); });

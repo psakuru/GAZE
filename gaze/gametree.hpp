@@ -18,11 +18,6 @@ public:
   vertex& operator*() { return *it; }
 };
 
-struct edge {
-  int hii;
-  edge() = default;
-};
-
 template<typename game_tree>
 class vertex {
 public:
@@ -77,14 +72,11 @@ public:
   typedef game_state state;
   typedef vertex<game_tree> vertex_property;
   typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS,
-                        vertex_property, edge> graph;
+                        vertex_property> graph;
   typedef typename boost::graph_traits<graph>::vertex_descriptor vertex_descriptor;
 
   typedef typename vertex_property::vertex_iterator vertex_iterator;
 
-  /*game_tree(state& initialstate):g(1) {
-    cur_vertex = new vertex_property(initialstate, *this);
-  }*/
   game_tree(state* st) {
     auto vd = boost::add_vertex(g);
     cur_vertex = new vertex_property(st, vd, this);
