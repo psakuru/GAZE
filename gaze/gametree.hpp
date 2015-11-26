@@ -6,17 +6,26 @@
 
 namespace gaze {
 
-template<typename edge_iter, typename vertex>
-class viterator : public std::iterator<std::forward_iterator_tag, vertex>{
-  edge_iter it;
+template<typename game_state>
+class game_tree;
+
+template<typename game_tree>
+class viterator : public std::iterator<std::forward_iterator_tag, typename game_tree::vertex_property> {
+  typedef typename game_tree::vertex_property vertex;
+  typedef typename vertex::graph_edge_it graph_edge_it;
+  typedef typename game_tree::graph graph;
+  graph_edge_it it;
+  graph& g;
 public:
-  viterator(edge_iter it): it(it) {}
+  viterator(graph_edge_it it, graph& g): it(it), g(g){}
   viterator& operator=(const viterator& rhs) { return *this; }
   viterator& operator++() {++it; return *this;};
   viterator operator++(int) {viterator res(*this); ++(*this); return res;}
   bool operator==(const viterator& rhs) { return it==rhs.it; }
   bool operator!=(const viterator& rhs) { return it!=rhs.it; }
-  edge_iter& operator*() { return it; }
+  vertex& operator*() {
+    return g[boost::target(*it, g)];
+  }
 };
 
 template<typename game_tree>
@@ -26,7 +35,7 @@ public:
   typedef typename game_tree::state state;
   typedef vertex<game_tree> vertex_property;
   typedef typename boost::graph_traits<graph>::out_edge_iterator graph_edge_it;
-  typedef typename gaze::viterator<graph_edge_it, vertex_property> vertex_iterator;
+  typedef typename gaze::viterator<game_tree> vertex_iterator;
 
   typedef typename boost::graph_traits<graph>::vertex_descriptor vertex_descriptor;
 
@@ -48,7 +57,7 @@ public:
     typename boost::graph_traits<graph>::out_edge_iterator begin_edge_it, end_edge_it;
     boost::tie(begin_edge_it, end_edge_it) = boost::out_edges(vd, *g);
 
-    return std::make_pair(vertex_iterator(begin_edge_it), vertex_iterator(end_edge_it));
+    return std::make_pair(vertex_iterator(begin_edge_it, *g), vertex_iterator(end_edge_it, *g));
   }
 
   bool operator==(const vertex& vt) {

@@ -10,11 +10,12 @@ public:
   state(int no): nodeno(no) {}
   vector<state>& get_children() {
     vector<state>& lst = *new vector<state>();
-    lst.push_back(nodeno*3);
     lst.push_back(nodeno*3+1);
+    lst.push_back(nodeno*3+2);
     return lst;
   }
   int get_value();
+
   void print() {
     cout<<"node: "<<nodeno<<endl;
   }
@@ -29,12 +30,9 @@ void init() {
   gaze::game_tree<state>::vertex_iterator it=iter_pair.first;
   gaze::game_tree<state>::vertex_iterator eit=iter_pair.second;
 
-  it++;//working
-  (*it);//not working
-
   //(*it).get_state().print();
-  //for(gaze::game_tree<state>::vertex_iterator it=iter_pair.first;it!=iter_pair.second;it++)
-   // (*it).get_state().print();
+  for(gaze::game_tree<state>::vertex_iterator it=iter_pair.first;it!=iter_pair.second;it++)
+    (*it).get_state().print();
   //for_each(iter_pair.first, iter_pair.second, [](auto st) { st.print(); });
 }
 int main()
