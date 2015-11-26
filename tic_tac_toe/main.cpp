@@ -3,6 +3,7 @@
 #include<vector>
 #include<climits>
 #include<memory>
+#include"../gaze/gametree.hpp"
 
 using namespace std;
 
