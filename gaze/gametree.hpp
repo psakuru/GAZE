@@ -47,10 +47,7 @@ public:
     typename boost::graph_traits<graph>::out_edge_iterator begin_edge_it, end_edge_it;
     boost::tie(begin_edge_it, end_edge_it) = boost::out_edges(vd, *g);
 
-    vertex_iterator& begin_vertex_it = *new vertex_iterator(begin_edge_it);
-    vertex_iterator& end_vertex_it = *new vertex_iterator(end_edge_it);
-
-    return std::make_pair(begin_vertex_it, end_vertex_it);
+    return std::make_pair(vertex_iterator(begin_edge_it), vertex_iterator(end_edge_it));
   }
 
   bool operator==(const vertex& vt) {
