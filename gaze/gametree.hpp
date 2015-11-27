@@ -4,9 +4,6 @@
 #include<boost/graph/adjacency_list.hpp>
 #include<boost/graph/graph_traits.hpp>
 
-#define DEBUG 0
-#include "../logging.hpp"
-
 namespace gaze {
 
 template<typename game_state>
@@ -45,15 +42,11 @@ public:
   vertex() {}
   vertex(state* st, vertex_descriptor vd, int level, game_tree* gt): st(st), vd(vd), gt(gt), g(&gt->g), level(level) {}
 
-  vertex(const vertex& other) { assert(1==0); }
-  //vertex& operator=(const vertex& other) { }
   state& get_state() { return *st; }
 
   std::pair<vertex_iterator, vertex_iterator> get_children() {
     assert((*g)[vd]==(*this));
-    dout<<"get_children "<<get_state()<<" "<<children_added<<std::endl;
     if(!children_added){
-      dout<<"creating new children"<<std::endl;
       add_children();
     }
     typename boost::graph_traits<graph>::out_edge_iterator begin_edge_it, end_edge_it;
@@ -61,16 +54,12 @@ public:
     {
       typename boost::graph_traits<graph>::out_edge_iterator begin_edge_it, end_edge_it;
       boost::tie(begin_edge_it, end_edge_it) = boost::out_edges(vd, *g);
-      dout<<"[";
-      for_each(begin_edge_it, end_edge_it, [&](auto edge){dout<<(*g)[boost::target(edge, *g)].get_state()<<",";});
-      dout<<"]"<<std::endl;
     }
 
     return std::make_pair(vertex_iterator(begin_edge_it, *g), vertex_iterator(end_edge_it, *g));
   }
 
   bool operator==(const vertex& vt) {
-    //return &vt == this;
     return vd==vt.vd && *st==*vt.st && children_added == vt.children_added;
   }
   bool operator!=(const vertex& vt) {
@@ -103,9 +92,6 @@ private:
       boost::add_edge(vd, tvd, *g);
     }
     children_added = true;
-    dout<<"add_children printgraph"<<std::endl;
-    dout<<(*gt)<<std::endl;
-    dout<<"-----------"<<std::endl;
   }
 
   int level=0;
