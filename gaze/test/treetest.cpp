@@ -9,11 +9,11 @@ class state {
   int nodeno;
 public:
   state(int no): nodeno(no) {}
-  vector<state>& get_children() {
+  vector<state*> get_children() {
     //cout<<"get_children "<<nodeno<<endl;
-    vector<state>& lst = *new vector<state>();
-    lst.push_back(nodecount++);
-    lst.push_back(nodecount++);
+    vector<state*>& lst = *new vector<state*>();
+    lst.push_back(new state(nodecount++));
+    lst.push_back(new state(nodecount++));
     return lst;
   }
   int get_value();
@@ -34,6 +34,7 @@ void make_tree(vertex& vt, int level)
     return;
 
   auto it_pair = vt.get_children();
+  cout<<std::distance(it_pair.first, it_pair.second)<<endl;
   for_each(it_pair.first, it_pair.second, [&](auto vert) { make_tree(vert, level-1); });
 }
 
@@ -41,9 +42,14 @@ gaze::game_tree<state> *gt;
 void init() {
   //gt = new gaze::game_tree<state>(*new state(0));
   gt = new gaze::game_tree<state>(new state(0));
-  auto vertex = gt->get_root_vertex();
+  gaze::game_tree<state>::vertex_property& vertex = gt->get_root_vertex();
+  //vertex.get_children();
+  //cout<<vertex<<endl;
+  //cout<<"===================================================================="<<endl;
   make_tree(vertex, 3);
-  //auto iter_pair = vertex.get_children();
+  //auto it_pair = vertex.get_children();
+  //for_each(it_pair.first, it_pair.second, [&](auto vert) { cout<<vert<<"\n***"<<endl;vert.get_children(); });
+  //cout<<gt->get_root_vertex()<<endl;
   //gaze::game_tree<state>::vertex_iterator it=iter_pair.first;
   //gaze::game_tree<state>::vertex_iterator eit=iter_pair.second;
 
