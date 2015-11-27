@@ -71,7 +71,7 @@ void init() {
   cout<<(*gt)<<endl;
   print_vd(gt->g);
   cout<<"=-------------------="<<endl;
-  make_tree(vertex, 3);
+  make_tree(vertex, 2);
   //print(vertex, 3);
   cout<<endl;
 
