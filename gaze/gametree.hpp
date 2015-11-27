@@ -4,9 +4,6 @@
 #include<boost/graph/adjacency_list.hpp>
 #include<boost/graph/graph_traits.hpp>
 
-#define DEBUG 1
-#include "../logging.hpp"
-
 namespace gaze {
 
 template<typename game_state>
@@ -48,18 +45,25 @@ public:
   state& get_state() { return *st; }
 
   std::pair<vertex_iterator, vertex_iterator> get_children() {
-    dout<<"hh "<<get_state()<<" "<<children_added<<std::endl;
+    assert((*g)[vd]==(*this));
     if(!children_added){
       add_children();
     }
     typename boost::graph_traits<graph>::out_edge_iterator begin_edge_it, end_edge_it;
     boost::tie(begin_edge_it, end_edge_it) = boost::out_edges(vd, *g);
+    {
+      typename boost::graph_traits<graph>::out_edge_iterator begin_edge_it, end_edge_it;
+      boost::tie(begin_edge_it, end_edge_it) = boost::out_edges(vd, *g);
+    }
 
     return std::make_pair(vertex_iterator(begin_edge_it, *g), vertex_iterator(end_edge_it, *g));
   }
 
   bool operator==(const vertex& vt) {
-    return vd==vt.vd;
+    return vd==vt.vd && *st==*vt.st && children_added == vt.children_added;
+  }
+  bool operator!=(const vertex& vt) {
+    return !(*this==vt);
   }
   size_t get_children_count() {
     if(!children_added) {
@@ -69,22 +73,22 @@ public:
   }
 
   std::ostream& print(std::ostream& os) {
-    os<<"("<<get_state();
+    os<<"("<<get_state()<<" ";
     if(children_added) {
-      os<<" degree "<<get_children_count()<<": ";
       auto it_pair = get_children();
-      for_each(it_pair.first, it_pair.second, [&](auto vert){ os<<vert; });
+      for_each(it_pair.first, it_pair.second, [&](auto &vert){ os<<vert; });
     }
     os<<")";
     return os;
   }
 private:
   void add_children() {
-    auto container = st->get_children();
+    assert(!children_added);
+    auto &container = st->get_children();
     for(auto it=container.begin(); it!=container.end(); it++){
       //vertex_property *nvert = new vertex_property(it, gt);
       auto tvd = boost::add_vertex(*g);
-      (*g)[tvd] = *new vertex_property(&*it, tvd, level+1, gt);
+      (*g)[tvd] = vertex_property(*it, tvd, level+1, gt);
       boost::add_edge(vd, tvd, *g);
     }
     children_added = true;
@@ -103,16 +107,16 @@ class game_tree {
 public:
   typedef game_state state;
   typedef vertex<game_tree> vertex_property;
-  typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS,
+  typedef boost::adjacency_list<boost::listS, boost::listS, boost::directedS,
                         vertex_property> graph;
   typedef typename boost::graph_traits<graph>::vertex_descriptor vertex_descriptor;
 
   typedef typename vertex_property::vertex_iterator vertex_iterator;
 
   game_tree(state* st) {
-    auto vd = boost::add_vertex(g);
-    root_vertex = cur_vertex = new vertex_property(st, vd, 0, this);
-    g[vd] = *cur_vertex;
+    //auto vd = boost::add_vertex(g);
+    root_vertex = cur_vertex = boost::add_vertex(g);
+    g[root_vertex] = vertex_property(st, root_vertex, 0, this);
   }
   game_tree(const game_tree& otherTree);
 
@@ -120,9 +124,9 @@ public:
   void set_current_state(state committedstate) {
   }
   //returns the previously committed vetex, used by algo
-  vertex_property& get_current_vertex() {return *cur_vertex;}
+  vertex_property& get_current_vertex() {return g[cur_vertex];}
   //returns root vertex of the tree
-  vertex_property& get_root_vertex() {return *root_vertex;}
+  vertex_property& get_root_vertex() {return g[root_vertex];}
   //returns the previously committed state, used by game designer
   state& get_current_state() {
     return cur_vertex->get_state();
@@ -130,11 +134,11 @@ public:
   graph g;
 
   std::ostream& print(std::ostream& os) {
-    return os<<(*root_vertex);
+    return os<<get_root_vertex();
   }
 private:
-  vertex_property *cur_vertex;
-  vertex_property *root_vertex;
+  vertex_descriptor cur_vertex;
+  vertex_descriptor root_vertex;
 };
 
 template<typename game_state>
@@ -156,15 +160,14 @@ std::ostream& operator<<(std::ostream& os, game_tree<game_state>& t)
   graph& g = t.g;
   vp = boost::vertices(g);
   std::for_each(vp.first,vp.second,[&](auto p){
-    os<< (p) << "->";
+    os<< g[p].get_state() << "->";
     if(boost::out_degree(p, g)) {
       for (boost::tie(out_i, out_end) = boost::out_edges(p, g);
-         out_i != out_end-1; ++out_i) {
+         out_i != out_end; ++out_i) {
         e = *out_i;
         Vertex src = boost::source(e, g), targ = boost::target(e, g);
-        os<< targ << ",";
+        os<< g[targ].get_state() << ",";
       }
-      os<<target(*out_i,g);
     }
     os<<std::endl;
   });
