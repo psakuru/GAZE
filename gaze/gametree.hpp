@@ -4,7 +4,7 @@
 #include<boost/graph/adjacency_list.hpp>
 #include<boost/graph/graph_traits.hpp>
 
-#define DEBUG 0
+#define DEBUG 1
 #include "../logging.hpp"
 
 namespace gaze {
@@ -43,28 +43,13 @@ public:
   typedef typename boost::graph_traits<graph>::vertex_descriptor vertex_descriptor;
 
   vertex() {}
-
-  vertex(const vertex& old):st(old.st),vd(old.vd),gt(old.gt),g(old.g),level(old.level) {}
-
   vertex(state* st, vertex_descriptor vd, int level, game_tree* gt): st(st), vd(vd), gt(gt), g(&gt->g), level(level) {}
-
-  vertex& operator=(const vertex& other){
-    if(&other != this) {
-      this->st = other.st;
-      this->gt = other.gt;
-      this->g = other.g;
-      this->vd = other.vd;
-      this->level = other.level;
-      this->children_added = other.children_added;
-      return *this;
-    }
-  }
 
   state& get_state() { return *st; }
 
   std::pair<vertex_iterator, vertex_iterator> get_children() {
     dout<<"hh "<<get_state()<<" "<<children_added<<std::endl;
-    if(!(*g)[vd].children_added) {
+    if(!children_added){
       add_children();
     }
     typename boost::graph_traits<graph>::out_edge_iterator begin_edge_it, end_edge_it;
@@ -77,7 +62,7 @@ public:
     return vd==vt.vd;
   }
   size_t get_children_count() {
-    if(!(*g)[vd].children_added) {
+    if(!children_added) {
       add_children();
     }
     return boost::out_degree(vd, *g);
@@ -85,7 +70,7 @@ public:
 
   std::ostream& print(std::ostream& os) {
     os<<"("<<get_state();
-    if((*g)[vd].children_added) {
+    if(children_added) {
       os<<" degree "<<get_children_count()<<": ";
       auto it_pair = get_children();
       for_each(it_pair.first, it_pair.second, [&](auto vert){ os<<vert; });
@@ -93,24 +78,16 @@ public:
     os<<")";
     return os;
   }
-
-  vertex_descriptor get_vd() {
-    return vd; 
-  }
-
- template<typename U>
- friend std::ostream& operator<<(std::ostream&, vertex<U>& );
-
 private:
   void add_children() {
     auto container = st->get_children();
     for(auto it=container.begin(); it!=container.end(); it++){
+      //vertex_property *nvert = new vertex_property(it, gt);
       auto tvd = boost::add_vertex(*g);
-      vertex_property nvert(*it,tvd,level+1,gt);
-      (*g)[tvd] = nvert;
+      (*g)[tvd] = *new vertex_property(&*it, tvd, level+1, gt);
       boost::add_edge(vd, tvd, *g);
     }
-    (*g)[vd].children_added = true;
+    children_added = true;
   }
 
   int level=0;
@@ -126,7 +103,7 @@ class game_tree {
 public:
   typedef game_state state;
   typedef vertex<game_tree> vertex_property;
-  typedef boost::adjacency_list<boost::listS, boost::listS, boost::directedS,
+  typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS,
                         vertex_property> graph;
   typedef typename boost::graph_traits<graph>::vertex_descriptor vertex_descriptor;
 
@@ -134,9 +111,8 @@ public:
 
   game_tree(state* st) {
     auto vd = boost::add_vertex(g);
-    vertex_property root(st,vd,0,this);
-    g[vd] = root;
-    root_vertex = cur_vertex = &(g[vd]);
+    root_vertex = cur_vertex = new vertex_property(st, vd, 0, this);
+    g[vd] = *cur_vertex;
   }
   game_tree(const game_tree& otherTree);
 
@@ -200,9 +176,7 @@ std::ostream& operator<<(std::ostream& os, game_tree<game_state>& t)
 template<typename game_tree>
 std::ostream& operator<<(std::ostream& os, vertex<game_tree>& t)
 {
-  //dout<<"vertex_descriptor "<<t.vd<<std::endl;
-  //dout<<"children_added flag "<<(*(t.g))[t.vd].children_added<<std::endl;
-  return t.print(os);
+ return t.print(os);
 }
 
 }
