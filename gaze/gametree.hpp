@@ -41,8 +41,8 @@ public:
   typedef typename boost::graph_traits<graph>::vertex_descriptor vertex_descriptor;
 
   vertex() {}
-  vertex(state* st, vertex_descriptor vd, int level, game_tree* gt):
-                            st(st), vd(vd), gt(gt), g(&gt->g), level(level) {}
+  vertex(state* st, vertex_descriptor vd, int level, graph* g):
+                            st(st), vd(vd), g(g), level(level) {}
 
   state& get_state() { return *st; }
   vertex_descriptor get_vd() { return vd; }
@@ -89,7 +89,7 @@ private:
     auto &container = st->get_children();
     for(auto it=container.begin(); it!=container.end(); it++){
       auto tvd = boost::add_vertex(*g);
-      (*g)[tvd] = vertex_property(*it, tvd, level+1, gt);
+      (*g)[tvd] = vertex_property(*it, tvd, level+1, g);
       boost::add_edge(vd, tvd, *g);
     }
     children_added = true;
@@ -98,7 +98,6 @@ private:
   int level=0;
   vertex_descriptor vd;
   state* st = nullptr;
-  game_tree* gt = nullptr;
   graph* g = nullptr;
   bool children_added = false;
 };
@@ -116,7 +115,7 @@ public:
 
   game_tree(state* st) {
     root_vertex = cur_vertex = boost::add_vertex(g);
-    g[root_vertex] = vertex_property(st, root_vertex, 0, this);
+    g[root_vertex] = vertex_property(st, root_vertex, 0, &g);
   }
   game_tree(const game_tree& otherTree);
 
