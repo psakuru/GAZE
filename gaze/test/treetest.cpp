@@ -67,11 +67,12 @@ gaze::game_tree<state> *gt;
 void init() {
   gt = new gaze::game_tree<state>(new state(0));
   auto &vertex = gt->get_root_vertex();
-  make_tree(vertex, 2);
+  make_tree(vertex, 3);
   cout<<(*gt)<<endl;
   //print_vd(gt->g);
   cout<<"=-------------------="<<endl;
-  make_tree(vertex, 2);
+  make_tree(vertex, 3);
+  make_tree(vertex, 3);
   //print(vertex, 3);
   cout<<endl;
 

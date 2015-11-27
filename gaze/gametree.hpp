@@ -4,7 +4,7 @@
 #include<boost/graph/adjacency_list.hpp>
 #include<boost/graph/graph_traits.hpp>
 
-#define DEBUG 1
+#define DEBUG 0
 #include "../logging.hpp"
 
 namespace gaze {
@@ -45,6 +45,8 @@ public:
   vertex() {}
   vertex(state* st, vertex_descriptor vd, int level, game_tree* gt): st(st), vd(vd), gt(gt), g(&gt->g), level(level) {}
 
+  vertex(const vertex& other) { assert(1==0); }
+  //vertex& operator=(const vertex& other) { }
   state& get_state() { return *st; }
 
   std::pair<vertex_iterator, vertex_iterator> get_children() {
@@ -68,7 +70,8 @@ public:
   }
 
   bool operator==(const vertex& vt) {
-    return vd==vt.vd && *st==*vt.st;
+    //return &vt == this;
+    return vd==vt.vd && *st==*vt.st && children_added == vt.children_added;
   }
   bool operator!=(const vertex& vt) {
     return !(*this==vt);
@@ -81,9 +84,8 @@ public:
   }
 
   std::ostream& print(std::ostream& os) {
-    os<<"("<<get_state();
+    os<<"("<<get_state()<<" ";
     if(children_added) {
-      os<<" degree "<<get_children_count()<<": ";
       auto it_pair = get_children();
       for_each(it_pair.first, it_pair.second, [&](auto &vert){ os<<vert; });
     }
@@ -97,7 +99,7 @@ private:
     for(auto it=container.begin(); it!=container.end(); it++){
       //vertex_property *nvert = new vertex_property(it, gt);
       auto tvd = boost::add_vertex(*g);
-      (*g)[tvd] = *new vertex_property(*it, tvd, level+1, gt);
+      (*g)[tvd] = vertex_property(*it, tvd, level+1, gt);
       boost::add_edge(vd, tvd, *g);
     }
     children_added = true;
@@ -119,16 +121,16 @@ class game_tree {
 public:
   typedef game_state state;
   typedef vertex<game_tree> vertex_property;
-  typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS,
+  typedef boost::adjacency_list<boost::listS, boost::listS, boost::directedS,
                         vertex_property> graph;
   typedef typename boost::graph_traits<graph>::vertex_descriptor vertex_descriptor;
 
   typedef typename vertex_property::vertex_iterator vertex_iterator;
 
   game_tree(state* st) {
-    auto vd = boost::add_vertex(g);
-    root_vertex = cur_vertex = new vertex_property(st, vd, 0, this);
-    g[vd] = *cur_vertex;
+    //auto vd = boost::add_vertex(g);
+    root_vertex = cur_vertex = boost::add_vertex(g);
+    g[root_vertex] = vertex_property(st, root_vertex, 0, this);
   }
   game_tree(const game_tree& otherTree);
 
@@ -136,9 +138,9 @@ public:
   void set_current_state(state committedstate) {
   }
   //returns the previously committed vetex, used by algo
-  vertex_property& get_current_vertex() {return *cur_vertex;}
+  vertex_property& get_current_vertex() {return g[cur_vertex];}
   //returns root vertex of the tree
-  vertex_property& get_root_vertex() {return *root_vertex;}
+  vertex_property& get_root_vertex() {return g[root_vertex];}
   //returns the previously committed state, used by game designer
   state& get_current_state() {
     return cur_vertex->get_state();
@@ -146,17 +148,17 @@ public:
   graph g;
 
   std::ostream& print(std::ostream& os) {
-    return os<<(*root_vertex);
+    return os<<get_root_vertex();
   }
 private:
-  vertex_property *cur_vertex;
-  vertex_property *root_vertex;
+  vertex_descriptor cur_vertex;
+  vertex_descriptor root_vertex;
 };
 
 template<typename game_state>
 std::ostream& operator<<(std::ostream& os, game_tree<game_state>& t)
 {
-#define PRINT 0
+#define PRINT 1
 #if PRINT
   return t.print(os);
 #else
