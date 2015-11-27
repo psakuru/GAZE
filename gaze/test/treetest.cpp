@@ -9,11 +9,11 @@ class state {
   int nodeno;
 public:
   state(int no): nodeno(no) {}
-  vector<state>& get_children() {
+  vector<state*>& get_children() {
     //cout<<"get_children "<<nodeno<<endl;
-    vector<state>& lst = *new vector<state>();
-    lst.push_back(*new state(++nodecount));
-    lst.push_back(*new state(++nodecount));
+    vector<state*>& lst = *new vector<state*>();
+    lst.push_back(new state(++nodecount));
+    lst.push_back(new state(++nodecount));
     return lst;
   }
   bool operator==(const state& other) { return nodeno == other.nodeno; }
@@ -30,15 +30,15 @@ ostream& operator<<(ostream& os, state& st)
 template<typename vertex>
 void make_tree(vertex& vt, int level)
 {
-  cout<<string(2*(3-level), ' ');
-  cout<<"make_tree "<<vt.get_state()<<" "<<level<<endl;
+  //cout<<string(2*(3-level), ' ');
+  //cout<<"make_tree "<<vt.get_state()<<" "<<level<<endl;
   if(!level)
     return;
 
   auto it_pair = vt.get_children();
-  for_each(it_pair.first, it_pair.second, [&](auto vert) { make_tree(vert, level-1); });
-  cout<<string(2*(3-level), ' ');
-  cout<<"----"<<endl;
+  for_each(it_pair.first, it_pair.second, [&](auto &vert) { make_tree(vert, level-1); });
+  //cout<<string(2*(3-level), ' ');
+  //cout<<"----"<<endl;
 }
 
 template<typename vertex>
@@ -48,16 +48,16 @@ void print(vertex& vt, int level)
     return;
   cout<<"("<<vt.get_state()<<": ";
   auto it_pair = vt.get_children();
-  for_each(it_pair.first, it_pair.second, [&](auto vert) { print(vert, level-1); });
+  for_each(it_pair.first, it_pair.second, [&](auto &vert) { print(vert, level-1); });
   cout<<")";
 }
 
 gaze::game_tree<state> *gt;
 void init() {
   gt = new gaze::game_tree<state>(new state(0));
-  auto vertex = gt->get_root_vertex();
+  auto &vertex = gt->get_root_vertex();
   make_tree(vertex, 2);
-  cout<<(*gt)<<endl;
+  cout<<(vertex)<<endl;
   cout<<"=-------------------="<<endl;
   make_tree(vertex, 2);
   //print(vertex, 3);

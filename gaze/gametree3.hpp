@@ -5,20 +5,36 @@
 #include<boost/graph/graph_traits.hpp>
 #include<list>
 
-#define DEBUG 1
+#define DEBUG 0
 #include "../logging.hpp"
 
 namespace gaze {
 
+template<typename vertex>
+class viterator : public std::iterator<std::forward_iterator_tag, vertex> {
+  typedef typename vertex::child_vertices_container::iterator container_iterator;
+  container_iterator it;
+public:
+  viterator(container_iterator cit): it(cit) {}
+  viterator& operator=(const viterator& rhs) { return *this; }
+  viterator& operator++() {++it; return *this;};
+  viterator operator++(int) {viterator res(*this); ++(*this); return res;}
+  bool operator==(const viterator& rhs) { return it==rhs.it; }
+  bool operator!=(const viterator& rhs) { return it!=rhs.it; }
+  vertex& operator*() {
+    return **it;
+  }
+};
+
 template<typename state>
 class vertex {
 public:
-  typedef std::list<vertex> child_vertices_container;
+  typedef std::list<vertex*> child_vertices_container;
   typedef vertex<state> vertex_property;
-  typedef typename child_vertices_container::iterator vertex_iterator;
+  typedef viterator<vertex_property> vertex_iterator;
 
   vertex() {}
-  vertex(state& st, int level): st(st), level(level) {}
+  vertex(state& st, int level): st(st), level(level) {dout<<"new vert "<<st<<std::endl;}
 
   state& get_state() { return st; }
 
@@ -26,7 +42,13 @@ public:
     if(!children_added){
       add_children();
     }
-    return std::make_pair(child_vertices.begin(), child_vertices.end());
+    /*{
+      dout<<"gc "<<std::endl;
+      auto itpair = std::make_pair(*new vertex_iterator(child_vertices.begin()),*new vertex_iterator(child_vertices.end()));
+      for_each(itpair.first, itpair.second, [&](auto vert) { dout<<vert.get_state(); });
+      dout<<"---"<<std::endl;
+    }*/
+    return std::make_pair(*new vertex_iterator(child_vertices.begin()),*new vertex_iterator(child_vertices.end()));
   }
 
   bool operator==(const vertex& vt) {
@@ -42,12 +64,14 @@ public:
     return child_vertices.size();
   }
 
+  vertex& operator=(const vertex& other) { assert(1==0); }
+
   std::ostream& print(std::ostream& os) {
-    os<<"("<<get_state();
+    os<<"("<<get_state()<<" ";//<<this<<" children "<<(children_added?"added":"not added")<<" "<<child_vertices.size();
     if(children_added) {
-      os<<" degree "<<get_children_count()<<": ";
+      //os<<" degree "<<get_children_count()<<": ";
       auto it_pair = get_children();
-      for_each(it_pair.first, it_pair.second, [&](auto vert){ os<<vert; });
+      for_each(it_pair.first, it_pair.second, [&](auto &vert){ os<<vert; });
     }
     os<<")";
     return os;
@@ -56,10 +80,14 @@ private:
   void add_children() {
     assert(!children_added);
     auto container = st.get_children();
-    for_each(container.begin(), container.end(), [&](auto st){
-      child_vertices.push_back(*new vertex_property(st, level+1));
+    for_each(container.begin(), container.end(), [&](auto nst){
+      child_vertices.push_back(new vertex_property(*nst, level+1));
     });
     children_added = true;
+
+    dout<<"addchildren print"<<std::endl;
+    dout<<(*this)<<std::endl;
+    dout<<"==="<<std::endl;
   }
 
   int level=0;
