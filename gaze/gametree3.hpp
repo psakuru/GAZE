@@ -131,36 +131,7 @@ private:
 template<typename game_state>
 std::ostream& operator<<(std::ostream& os, game_tree<game_state>& t)
 {
-#define PRINT 1
-#if PRINT
   return t.print(os);
-#else
-  typedef typename game_tree<game_state>::graph graph;
-
-  typedef typename boost::graph_traits<graph> GraphTraits;
-  typename GraphTraits::out_edge_iterator out_i, out_end;
-  typedef typename boost::graph_traits<graph>::vertex_descriptor Vertex;
-  typedef typename boost::graph_traits<graph>::vertex_iterator vertex_iter;
-  typename GraphTraits::edge_descriptor e;
-
-  std::pair<vertex_iter, vertex_iter> vp;
-  graph& g = t.g;
-  vp = boost::vertices(g);
-  std::for_each(vp.first,vp.second,[&](auto p){
-    os<< g[p].get_state() << "->";
-    if(boost::out_degree(p, g)) {
-      for (boost::tie(out_i, out_end) = boost::out_edges(p, g);
-         out_i != out_end; ++out_i) {
-        e = *out_i;
-        Vertex src = boost::source(e, g), targ = boost::target(e, g);
-        os<< g[targ].get_state() << ",";
-      }
-    }
-    os<<std::endl;
-  });
-  os<< std::endl;
-  return os;
-#endif
 }
 
 template<typename game_tree>
