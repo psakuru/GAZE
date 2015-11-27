@@ -51,10 +51,6 @@ public:
     }
     typename boost::graph_traits<graph>::out_edge_iterator begin_edge_it, end_edge_it;
     boost::tie(begin_edge_it, end_edge_it) = boost::out_edges(vd, *g);
-    {
-      typename boost::graph_traits<graph>::out_edge_iterator begin_edge_it, end_edge_it;
-      boost::tie(begin_edge_it, end_edge_it) = boost::out_edges(vd, *g);
-    }
 
     return std::make_pair(vertex_iterator(begin_edge_it, *g), vertex_iterator(end_edge_it, *g));
   }
