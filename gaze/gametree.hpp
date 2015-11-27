@@ -48,9 +48,18 @@ public:
   state& get_state() { return *st; }
 
   std::pair<vertex_iterator, vertex_iterator> get_children() {
-    dout<<"hh "<<get_state()<<" "<<children_added<<std::endl;
+    assert((*g)[vd]==(*this));
+    dout<<"get_children "<<get_state()<<" "<<children_added<<std::endl;
     if(!children_added){
+      dout<<"creating new children"<<std::endl;
       add_children();
+    }
+    {
+    typename boost::graph_traits<graph>::out_edge_iterator begin_edge_it, end_edge_it;
+    boost::tie(begin_edge_it, end_edge_it) = boost::out_edges(vd, *g);
+    dout<<"[";
+    for_each(begin_edge_it, end_edge_it, [&](auto edge){dout<<(*g)[boost::target(edge, *g)].get_state()<<",";});
+    dout<<"]"<<std::endl;
     }
     typename boost::graph_traits<graph>::out_edge_iterator begin_edge_it, end_edge_it;
     boost::tie(begin_edge_it, end_edge_it) = boost::out_edges(vd, *g);
@@ -59,7 +68,10 @@ public:
   }
 
   bool operator==(const vertex& vt) {
-    return vd==vt.vd;
+    return vd==vt.vd && *st==*vt.st;
+  }
+  bool operator!=(const vertex& vt) {
+    return !(*this==vt);
   }
   size_t get_children_count() {
     if(!children_added) {
@@ -80,6 +92,7 @@ public:
   }
 private:
   void add_children() {
+    assert(!children_added);
     auto container = st->get_children();
     for(auto it=container.begin(); it!=container.end(); it++){
       //vertex_property *nvert = new vertex_property(it, gt);
@@ -140,7 +153,7 @@ private:
 template<typename game_state>
 std::ostream& operator<<(std::ostream& os, game_tree<game_state>& t)
 {
-#define PRINT 1
+#define PRINT 0
 #if PRINT
   return t.print(os);
 #else
@@ -156,15 +169,14 @@ std::ostream& operator<<(std::ostream& os, game_tree<game_state>& t)
   graph& g = t.g;
   vp = boost::vertices(g);
   std::for_each(vp.first,vp.second,[&](auto p){
-    os<< (p) << "->";
+    os<< g[p].get_state() << "->";
     if(boost::out_degree(p, g)) {
       for (boost::tie(out_i, out_end) = boost::out_edges(p, g);
-         out_i != out_end-1; ++out_i) {
+         out_i != out_end; ++out_i) {
         e = *out_i;
         Vertex src = boost::source(e, g), targ = boost::target(e, g);
-        os<< targ << ",";
+        os<< g[targ].get_state() << ",";
       }
-      os<<target(*out_i,g);
     }
     os<<std::endl;
   });
