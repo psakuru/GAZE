@@ -9,11 +9,11 @@ class state {
   int nodeno;
 public:
   state(int no): nodeno(no) {}
-  vector<state>& get_children() {
+  vector<state*>& get_children() {
     //cout<<"get_children "<<nodeno<<endl;
-    vector<state>& lst = *new vector<state>();
-    lst.push_back(*new state(++nodecount));
-    lst.push_back(*new state(++nodecount));
+    vector<state*>& lst = *new vector<state*>();
+    lst.push_back(new state(++nodecount));
+    lst.push_back(new state(++nodecount));
     return lst;
   }
   bool operator==(const state& other) { return nodeno == other.nodeno; }
@@ -36,7 +36,7 @@ void make_tree(vertex& vt, int level)
     return;
 
   auto it_pair = vt.get_children();
-  for_each(it_pair.first, it_pair.second, [&](auto vert) { make_tree(vert, level-1); });
+  for_each(it_pair.first, it_pair.second, [&](auto &vert) { make_tree(vert, level-1); });
   //cout<<string(2*(3-level), ' ');
   //cout<<"----"<<endl;
 }
@@ -48,7 +48,7 @@ void print(vertex& vt, int level)
     return;
   cout<<"("<<vt.get_state()<<": ";
   auto it_pair = vt.get_children();
-  for_each(it_pair.first, it_pair.second, [&](auto vert) { print(vert, level-1); });
+  for_each(it_pair.first, it_pair.second, [&](auto &vert) { print(vert, level-1); });
   cout<<")";
 }
 
@@ -66,17 +66,17 @@ void print_vd(graph& g)
 gaze::game_tree<state> *gt;
 void init() {
   gt = new gaze::game_tree<state>(new state(0));
-  auto vertex = gt->get_root_vertex();
+  auto &vertex = gt->get_root_vertex();
   make_tree(vertex, 2);
   cout<<(*gt)<<endl;
-  print_vd(gt->g);
+  //print_vd(gt->g);
   cout<<"=-------------------="<<endl;
   make_tree(vertex, 2);
   //print(vertex, 3);
   cout<<endl;
 
   cout<<(*gt)<<endl;
-  print_vd(gt->g);
+  //print_vd(gt->g);
 }
 int main()
 {

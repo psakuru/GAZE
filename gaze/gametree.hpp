@@ -85,7 +85,7 @@ public:
     if(children_added) {
       os<<" degree "<<get_children_count()<<": ";
       auto it_pair = get_children();
-      for_each(it_pair.first, it_pair.second, [&](auto vert){ os<<vert; });
+      for_each(it_pair.first, it_pair.second, [&](auto &vert){ os<<vert; });
     }
     os<<")";
     return os;
@@ -93,11 +93,11 @@ public:
 private:
   void add_children() {
     assert(!children_added);
-    auto container = st->get_children();
+    auto &container = st->get_children();
     for(auto it=container.begin(); it!=container.end(); it++){
       //vertex_property *nvert = new vertex_property(it, gt);
       auto tvd = boost::add_vertex(*g);
-      (*g)[tvd] = *new vertex_property(&*it, tvd, level+1, gt);
+      (*g)[tvd] = *new vertex_property(*it, tvd, level+1, gt);
       boost::add_edge(vd, tvd, *g);
     }
     children_added = true;
