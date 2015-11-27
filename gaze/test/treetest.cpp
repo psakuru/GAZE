@@ -1,6 +1,6 @@
 #include<iostream>
 #include<vector>
-#include "../gametree.hpp"
+#include "../gametree3.hpp"
 
 using namespace std;
 
@@ -30,15 +30,15 @@ ostream& operator<<(ostream& os, state& st)
 template<typename vertex>
 void make_tree(vertex& vt, int level)
 {
-  //cout<<string(2*(3-level), ' ');
-  //cout<<"make_tree "<<vt.get_state()<<" "<<level<<endl;
+  cout<<string(2*(3-level), ' ');
+  cout<<"make_tree "<<vt.get_state()<<" "<<level<<endl;
   if(!level)
     return;
 
   auto it_pair = vt.get_children();
   for_each(it_pair.first, it_pair.second, [&](auto vert) { make_tree(vert, level-1); });
-  //cout<<string(2*(3-level), ' ');
-  //cout<<"----"<<endl;
+  cout<<string(2*(3-level), ' ');
+  cout<<"----"<<endl;
 }
 
 template<typename vertex>
@@ -52,31 +52,18 @@ void print(vertex& vt, int level)
   cout<<")";
 }
 
-template<typename graph>
-void print_vd(graph& g)
-{
-  auto vert_pair = boost::vertices(g);
-  cout<<"print_vd"<<endl;
-  for_each(vert_pair.first, vert_pair.second, [&](auto vd) {
-    cout<<g[vd].get_state()<<"::"<<vd<<endl;
-  });
-  cout<<"==========="<<endl;
-}
-
 gaze::game_tree<state> *gt;
 void init() {
   gt = new gaze::game_tree<state>(new state(0));
   auto vertex = gt->get_root_vertex();
   make_tree(vertex, 2);
   cout<<(*gt)<<endl;
-  print_vd(gt->g);
   cout<<"=-------------------="<<endl;
-  make_tree(vertex, 3);
+  make_tree(vertex, 2);
   //print(vertex, 3);
   cout<<endl;
 
   cout<<(*gt)<<endl;
-  print_vd(gt->g);
 }
 int main()
 {
