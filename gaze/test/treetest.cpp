@@ -4,7 +4,7 @@
 
 using namespace std;
 
-int nodecount=1;
+int nodecount=0;
 class state {
   int nodeno;
 public:
@@ -12,8 +12,8 @@ public:
   vector<state>& get_children() {
     //cout<<"get_children "<<nodeno<<endl;
     vector<state>& lst = *new vector<state>();
-    lst.push_back(*new state(nodecount++));
-    lst.push_back(*new state(nodecount++));
+    lst.push_back(*new state(++nodecount));
+    lst.push_back(*new state(++nodecount));
     return lst;
   }
   bool operator==(const state& other) { return nodeno == other.nodeno; }
