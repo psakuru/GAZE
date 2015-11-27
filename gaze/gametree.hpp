@@ -10,7 +10,8 @@ template<typename game_state>
 class game_tree;
 
 template<typename game_tree>
-class viterator : public std::iterator<std::forward_iterator_tag, typename game_tree::vertex_property> {
+class viterator : public std::iterator<std::forward_iterator_tag,
+                              typename game_tree::vertex_property> {
   typedef typename game_tree::vertex_property vertex;
   typedef typename vertex::graph_edge_it graph_edge_it;
   typedef typename game_tree::graph graph;
@@ -40,19 +41,24 @@ public:
   typedef typename boost::graph_traits<graph>::vertex_descriptor vertex_descriptor;
 
   vertex() {}
-  vertex(state* st, vertex_descriptor vd, int level, game_tree* gt): st(st), vd(vd), gt(gt), g(&gt->g), level(level) {}
+  vertex(state* st, vertex_descriptor vd, int level, game_tree* gt):
+                            st(st), vd(vd), gt(gt), g(&gt->g), level(level) {}
 
   state& get_state() { return *st; }
+  vertex_descriptor get_vd() { return vd; }
 
   std::pair<vertex_iterator, vertex_iterator> get_children() {
     assert((*g)[vd]==(*this));
     if(!children_added){
       add_children();
     }
-    typename boost::graph_traits<graph>::out_edge_iterator begin_edge_it, end_edge_it;
+    typename boost::graph_traits<graph>::out_edge_iterator begin_edge_it,
+                                                            end_edge_it;
+
     boost::tie(begin_edge_it, end_edge_it) = boost::out_edges(vd, *g);
 
-    return std::make_pair(vertex_iterator(begin_edge_it, *g), vertex_iterator(end_edge_it, *g));
+    return std::make_pair(vertex_iterator(begin_edge_it, *g),
+                          vertex_iterator(end_edge_it, *g));
   }
 
   bool operator==(const vertex& vt) {
@@ -82,7 +88,6 @@ private:
     assert(!children_added);
     auto &container = st->get_children();
     for(auto it=container.begin(); it!=container.end(); it++){
-      //vertex_property *nvert = new vertex_property(it, gt);
       auto tvd = boost::add_vertex(*g);
       (*g)[tvd] = vertex_property(*it, tvd, level+1, gt);
       boost::add_edge(vd, tvd, *g);
@@ -110,14 +115,21 @@ public:
   typedef typename vertex_property::vertex_iterator vertex_iterator;
 
   game_tree(state* st) {
-    //auto vd = boost::add_vertex(g);
     root_vertex = cur_vertex = boost::add_vertex(g);
     g[root_vertex] = vertex_property(st, root_vertex, 0, this);
   }
   game_tree(const game_tree& otherTree);
 
   //to be called for all moves
-  void set_current_state(state committedstate) {
+  void set_current_state(state& committedstate) {
+    auto vert = get_current_vertex();
+    auto itpair = vert.get_children();
+    for(auto it=itpair.first;it!=itpair.second;++it){
+      if(*it==committedstate){
+        cur_vertex = vert.get_vd();
+        break;
+      }
+    }
   }
   //returns the previously committed vetex, used by algo
   vertex_property& get_current_vertex() {return g[cur_vertex];}

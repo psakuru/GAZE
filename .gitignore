@@ -30,3 +30,4 @@ main
 *.swp
 
 gaze/test/treetest
+*.dSYM
