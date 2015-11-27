@@ -3,7 +3,7 @@
 #include<iostream>
 
 #if DEBUG
-static std::ostream &dout = cout;
+static std::ostream &dout = std::cout;
 #else
 static std::stringstream dout;
 #endif
