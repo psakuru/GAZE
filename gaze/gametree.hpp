@@ -3,6 +3,10 @@
 
 #include<boost/graph/adjacency_list.hpp>
 #include<boost/graph/graph_traits.hpp>
+#include<vector>
+
+#define DEBUG 0
+#include "../logging.hpp"
 
 namespace gaze {
 
@@ -19,7 +23,8 @@ class viterator : public std::iterator<std::forward_iterator_tag,
   graph& g;
 public:
   viterator(graph_edge_it it, graph& g): it(it), g(g){}
-  viterator& operator=(const viterator& rhs) { return *this; }
+  viterator(const viterator &other): it(other.it), g(other.g) {}
+  viterator& operator=(const viterator& rhs) { it = rhs.it; g = rhs.g; return *this; }
   viterator& operator++() {++it; return *this;};
   viterator operator++(int) {viterator res(*this); ++(*this); return res;}
   bool operator==(const viterator& rhs) { return it==rhs.it; }
@@ -43,11 +48,22 @@ public:
   typedef typename boost::graph_traits<graph>::vertex_descriptor vertex_descriptor;
 
   vertex() {}
-  vertex(game_state* st, vertex_descriptor vd, int level, graph* g):
-                            st(st), vd(vd), g(g), level(level) {}
+  vertex(game_state* st, vertex_descriptor vd, vertex_descriptor pvd, int level,
+              graph* g): st(st), vd(vd), parent_vd(pvd), g(g), level(level) {}
 
   game_state& get_game_state() { return *st; }
   vertex_descriptor get_vd() { return vd; }
+  vertex& get_parent() { return (*g)[parent_vd]; }
+  ~vertex() {
+    dout<<"destructor for "<<get_state()<<std::endl;
+    //TODO: remove child vertices
+    level = -1;
+    vd = 0;
+    parent_vd = 0;
+    st = nullptr;
+    g = nullptr;
+    children_added = false;
+  }
 
   std::pair<vertex_iterator, vertex_iterator> get_children() {
     assert((*g)[vd]==(*this));
@@ -71,6 +87,8 @@ public:
     return !(*this==vt);
   }
 
+  game_state& get_state() { return *st; }
+
   size_t get_children_count() {
     if(!children_added) {
       add_children();
@@ -80,10 +98,10 @@ public:
 
   std::ostream& print(std::ostream& os) {
     os<<"("<<get_game_state()<<" ";
-    //if(children_added) {
-    //  auto it_pair = get_children();
-    //  for_each(it_pair.first, it_pair.second, [&](auto &vert){ os<<vert; });
-    //}
+    if(children_added) {
+      auto it_pair = get_children();
+      for_each(it_pair.first, it_pair.second, [&](auto &vert){ os<<vert; });
+    }
     os<<")";
     return os;
   }
@@ -95,17 +113,17 @@ public:
 private:
   void add_children() {
     assert(!children_added);
-    auto container = st->get_children();
+    auto &container = st->get_children();
     for(auto it=container.begin(); it!=container.end(); it++){
       auto tvd = boost::add_vertex(*g);
-      (*g)[tvd] = vertex_property(new game_state(*it), tvd, level+1, g);
+      (*g)[tvd] = vertex_property(*it, tvd, vd, level+1, g);
       boost::add_edge(vd, tvd, *g);
     }
     children_added = true;
   }
 
   int level=0;
-  vertex_descriptor vd;
+  vertex_descriptor vd, parent_vd;
   game_state* st = nullptr;
   graph* g = nullptr;
   bool children_added = false;
@@ -115,7 +133,7 @@ template<typename state>
 class game_tree {
 public:
   typedef state game_state;
-  typedef decltype(game_state().get_value()) state_value_type; 
+  typedef decltype(((game_state*)nullptr)->get_value()) state_value_type;
   typedef vertex<game_tree> vertex_property;
   typedef boost::adjacency_list<boost::listS, boost::listS, boost::directedS,
                         vertex_property> graph;
@@ -126,7 +144,7 @@ public:
 
   game_tree(game_state* st) {
     root_vertex = cur_vertex = boost::add_vertex(g);
-    g[root_vertex] = vertex_property(st, root_vertex, 0, &g);
+    g[root_vertex] = vertex_property(st, root_vertex, 0, 0, &g);
   }
 
   game_tree() {
@@ -139,14 +157,51 @@ public:
 
   //to be called for all moves
   void set_current_state(game_state& committedstate) {
-    auto vert = get_current_vertex();
+    //dout<<"set_cur_state "<<committedstate<<std::endl;
+    auto &vert = get_current_vertex();
     auto itpair = vert.get_children();
-    for(auto it=itpair.first;it!=itpair.second;++it){
-      if(*it==committedstate){
-        cur_vertex = vert.get_vd();
-        break;
+    //edge iterator is unstable after edge removal, so can't use below code
+    /*vertex_iterator it = itpair.first;
+    vertex_iterator next = it;
+    for(next = it; it != itpair.second; it = next){
+      ++next;
+      auto &child_vert = *it;
+      dout<<"cur="<<child_vert.get_state()<<" next=";
+      if(next==itpair.second)
+        dout<<"end"<<std::endl;
+      else
+        dout<<(*next).get_state()<<std::endl;
+
+      if(child_vert.get_state()==committedstate){
+        dout<<"keeping "<<child_vert.get_state()<<std::endl;
+        cur_vertex = child_vert.get_vd();
+      } else {
+        auto vd = child_vert.get_vd();
+        dout<<"removing "<<child_vert.get_state()<<std::endl;
+        boost::remove_edge(vert.get_vd(), vd, g);
+        boost::remove_vertex(vd, g);
+        dout<<"removed"<<std::endl;
       }
+    }*/
+    vertex_descriptor vd(0);
+    std::vector<vertex_descriptor> toremove;
+    for(auto it=itpair.first;it!=itpair.second;it++){
+      if((*it).get_state() == committedstate){
+        vd = (*it).get_vd();
+      }else
+        toremove.push_back((*it).get_vd());
     }
+    if(vd==0)
+      throw std::invalid_argument("No such state");
+
+    cur_vertex = vd;
+
+    //remove all out edges
+    boost::remove_out_edge_if(vert.get_vd(), [](auto vd) { return true; }, g);
+    boost::add_edge(vert.get_vd(), vd, g);
+    for_each(toremove.begin(), toremove.end(), [&](auto vd) {
+        boost::remove_vertex(vd, g);
+    });
   }
   //returns the previously committed vetex, used by algo
   vertex_property& get_current_vertex() {return g[cur_vertex];}
@@ -158,9 +213,7 @@ public:
   }
   graph g;
 
-  std::ostream& print(std::ostream& os) {
-    return os<<get_root_vertex();
-  }
+  std::ostream& print(std::ostream& os) {return os<<get_root_vertex();}
 private:
   vertex_descriptor cur_vertex;
   vertex_descriptor root_vertex;
