@@ -4,6 +4,7 @@
 #include<climits>
 #include<memory>
 #include"../gaze/gametree.hpp"
+#include"../gaze/algorithms/alpha-beta.hpp"
 
 using namespace std;
 
@@ -72,6 +73,9 @@ class gameState{
       std::vector<int> blnks = get_blanks();
       std::vector<gameState> v;
 
+      if(this->get_value() == gameState::max_state_value() || this->get_value() == gameState::min_state_value())
+        return v;
+
       gameState::option next = (blnks.size() % 2 == 1)? gameState::option::X : gameState::option::O;
       std::for_each(blnks.begin(),blnks.end(),[&](auto i){
         gameState gs(*this);
@@ -81,8 +85,20 @@ class gameState{
       return v;
     }
 
-    friend ostream& operator<<(ostream&, const gameState&);
+    bool operator==(const gameState& vt) {
+      for(int i =0;i<board_size;i++){
+        if(squares[i] != vt.squares[i])
+          return false;
+      }
+      return true;
+    }
 
+    bool operator!=(const gameState& vt) {
+      return !(*this == vt);
+    }
+
+    friend ostream& operator<<(ostream&, const gameState&);
+  
   private:
     int board_size;
     gameState::option* squares; 
@@ -94,6 +110,7 @@ class gameState{
         if(squares[i] == gameState::option::B)
           blanks.push_back(i);
       }
+      std::random_shuffle(blanks.begin(),blanks.end());
       return blanks;
     }
 
@@ -101,26 +118,34 @@ class gameState{
 
 constexpr int gameState::win_moves[8][3];
 
-ostream& operator<<(ostream& os, const gameState& gt) {
-  for(int i = 0;i<gt.board_size;i++){
-    if(gt.squares[i] == gameState::option::X)
-      os<<"X";
-    else if(gt.squares[i] == gameState::option::O)
-      os<<"O";
+std::string print_square(gameState::option a) {
+    if(a == gameState::option::X)
+      return "X";
+    else if(a == gameState::option::O)
+      return "O";
     else
-      os<<"B";
-  }
+      return "B";
+}
+
+ostream& operator<<(ostream& os, const gameState& gt) {
+  os<<print_square(gt.squares[6])<<"\t"<<print_square(gt.squares[7])<<"\t"<<print_square(gt.squares[8])<<"\n";
+  os<<print_square(gt.squares[3])<<"\t"<<print_square(gt.squares[4])<<"\t"<<print_square(gt.squares[5])<<"\n";
+  os<<print_square(gt.squares[0])<<"\t"<<print_square(gt.squares[1])<<"\t"<<print_square(gt.squares[2])<<"\n";
   os<<std::endl;
   return os;
 }
 
 int main(){
-  gameState g;
-  cout<<g.get_square(1)<<endl;
-  cout<<gameState::option::X<<endl;
-  cout<<gameState::option::O<<endl;
-  cout<<gameState::option::B<<endl;
-  auto out_end = g.get_children();
-  std::for_each(out_end.begin(),out_end.end(),[&](auto i){cout<<i<<endl;});
+  gaze::game_tree<gameState> gt;
+  bool player1 = true;
+  auto pair_i = gaze::alphabeta(gt, 1, INT_MIN, INT_MAX, player1);
+  int i = 9;
+  while(i-- != 0){
+  cout<<pair_i.first<<endl;
+  cout<<pair_i.second<<endl;
+  player1 = !player1;
+  pair_i = gaze::alphabeta(gt, 1, INT_MIN, INT_MAX, player1,pair_i.second); 
+  }
+  
   return 0;
 }
