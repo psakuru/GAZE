@@ -8,7 +8,7 @@
 
 namespace gaze{
   template<typename game_tree>
-  std::pair<int, typename game_traits<game_tree>::vertex_property> alphabeta(
+  std::pair<int, typename game_traits<game_tree>::vertex_property*> alphabeta(
                         game_tree& gt_,
                         int depth,
                         typename game_traits<game_tree>::state_value_type alpha,
@@ -18,7 +18,7 @@ namespace gaze{
   }
 
   template<typename game_tree>
-  std::pair<int, typename game_traits<game_tree>::vertex_property> alphabeta(
+  std::pair<int, typename game_traits<game_tree>::vertex_property*> alphabeta(
                         game_tree& gt_,
                         int depth_,
                         typename game_traits<game_tree>::state_value_type alpha,
@@ -30,7 +30,7 @@ namespace gaze{
     typedef typename game_traits<game_tree>::state_value_type game_state_value;
     
     if(depth_ == 0 || cur_.get_children_count() == 0)
-      return std::make_pair(cur_.get_value(), cur_);
+      return std::make_pair(cur_.get_value(), &cur_);
     
     Vertex* vert_;
     if(player1) {
@@ -44,7 +44,7 @@ namespace gaze{
         if(beta <= alpha)
           break;
       }
-      return std::make_pair(v_, *vert_);
+      return std::make_pair(v_, vert_);
     } else {
       game_state_value v_ = game_traits<game_tree>::game_state::max_state_value();
       auto it_pair = cur_.get_children();
@@ -56,7 +56,7 @@ namespace gaze{
         if(beta <= alpha)
           break;
       }
-      return std::make_pair(v_, *vert_);
+      return std::make_pair(v_, vert_);
     }
   } 
 }

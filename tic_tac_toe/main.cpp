@@ -154,9 +154,9 @@ int main(){
   int i = 9;
   while(i-- != 0){
     cout<<pair_i.first<<endl;
-    cout<<pair_i.second<<endl;
+    cout<<*pair_i.second<<endl;
     player1 = !player1;
-    pair_i = gaze::alphabeta(gt, 1, INT_MIN, INT_MAX, player1,pair_i.second);
+    pair_i = gaze::alphabeta(gt, 1, INT_MIN, INT_MAX, player1, *pair_i.second);
   }
   
   return 0;
