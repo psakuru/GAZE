@@ -150,7 +150,7 @@ public:
   game_tree() {
     game_state* st = new game_state();
     root_vertex = cur_vertex = boost::add_vertex(g);
-    g[root_vertex] = vertex_property(st, root_vertex, 0, &g);
+    g[root_vertex] = vertex_property(st, root_vertex, 0, 0, &g);
   }
   
   game_tree(const game_tree& otherTree);
