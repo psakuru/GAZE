@@ -18,8 +18,9 @@ class gameState{
     };
 
     gameState() :board_size(9) {
-      squares = new gameState::option[9]; 
-      std::uninitialized_fill(squares, (squares+board_size), gameState::option::B);
+      squares = new gameState::option[9];
+      std::uninitialized_fill(squares, (squares+board_size),
+                                        gameState::option::B);
     }
 
     gameState(const gameState& state_) {
@@ -60,29 +61,35 @@ class gameState{
 
     int get_value() {
       for(int i = 0; i<8;i++){
-        if(squares[win_moves[i][0]] != gameState::option::B && (squares[win_moves[i][0]] == squares[win_moves[i][1]] && squares[win_moves[i][0]] == squares[win_moves[i][2]]))
-          if(squares[win_moves[i][0]] == gameState::option::X )
+        if(squares[win_moves[i][0]] != gameState::option::B &&
+            (squares[win_moves[i][0]] == squares[win_moves[i][1]] &&
+             squares[win_moves[i][0]] == squares[win_moves[i][2]])) {
+          if(squares[win_moves[i][0]] == gameState::option::X ) {
             return gameState::max_state_value();
-          else
+          } else {
             return gameState::min_state_value();
-      } 
+          }
+        }
+      }
       return 0;
     }
 
-    std::vector<gameState> get_children(){
+    std::vector<gameState*> &get_children(){
       std::vector<int> blnks = get_blanks();
-      std::vector<gameState> v;
+      auto v = new std::vector<gameState*>;
 
-      if(this->get_value() == gameState::max_state_value() || this->get_value() == gameState::min_state_value())
-        return v;
+      if(this->get_value() == gameState::max_state_value() ||
+          this->get_value() == gameState::min_state_value())
+        return *v;
 
-      gameState::option next = (blnks.size() % 2 == 1)? gameState::option::X : gameState::option::O;
+      gameState::option next = (blnks.size() % 2 == 1)? gameState::option::X :
+                                                        gameState::option::O;
       std::for_each(blnks.begin(),blnks.end(),[&](auto i){
-        gameState gs(*this);
-        gs.set_square(i,next);
-        v.push_back(gs);
+        gameState *gs= new gameState(*this);
+        gs->set_square(i,next);
+        v->push_back(gs);
       });
-      return v;
+      return *v;
     }
 
     bool operator==(const gameState& vt) {
@@ -101,8 +108,10 @@ class gameState{
   
   private:
     int board_size;
-    gameState::option* squares; 
-    static constexpr int win_moves[8][3] = {{0,1,2},{3,4,5},{6,7,8},{0,3,6},{1,4,7},{2,5,8},{0,4,8},{2,4,6}};
+    gameState::option* squares;
+    static constexpr int win_moves[8][3] = {{0,1,2},{3,4,5},{6,7,8},
+                                            {0,3,6},{1,4,7},{2,5,8},
+                                            {0,4,8},{2,4,6}};
 
     std::vector<int> get_blanks() {
       std::vector<int> blanks;
@@ -128,9 +137,12 @@ std::string print_square(gameState::option a) {
 }
 
 ostream& operator<<(ostream& os, const gameState& gt) {
-  os<<print_square(gt.squares[6])<<"\t"<<print_square(gt.squares[7])<<"\t"<<print_square(gt.squares[8])<<"\n";
-  os<<print_square(gt.squares[3])<<"\t"<<print_square(gt.squares[4])<<"\t"<<print_square(gt.squares[5])<<"\n";
-  os<<print_square(gt.squares[0])<<"\t"<<print_square(gt.squares[1])<<"\t"<<print_square(gt.squares[2])<<"\n";
+  os<<print_square(gt.squares[6])<<"\t"<<print_square(gt.squares[7])<<
+                      "\t"<<print_square(gt.squares[8])<<"\n";
+  os<<print_square(gt.squares[3])<<"\t"<<print_square(gt.squares[4])<<
+                      "\t"<<print_square(gt.squares[5])<<"\n";
+  os<<print_square(gt.squares[0])<<"\t"<<print_square(gt.squares[1])<<
+                      "\t"<<print_square(gt.squares[2])<<"\n";
   os<<std::endl;
   return os;
 }
@@ -141,10 +153,10 @@ int main(){
   auto pair_i = gaze::alphabeta(gt, 1, INT_MIN, INT_MAX, player1);
   int i = 9;
   while(i-- != 0){
-  cout<<pair_i.first<<endl;
-  cout<<pair_i.second<<endl;
-  player1 = !player1;
-  pair_i = gaze::alphabeta(gt, 1, INT_MIN, INT_MAX, player1,pair_i.second); 
+    cout<<pair_i.first<<endl;
+    cout<<pair_i.second<<endl;
+    player1 = !player1;
+    pair_i = gaze::alphabeta(gt, 1, INT_MIN, INT_MAX, player1,pair_i.second);
   }
   
   return 0;
