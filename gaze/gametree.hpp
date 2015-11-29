@@ -55,6 +55,64 @@ public:
               graph* g): st(st), vd(vd), parent_vd(pvd), g(g), level(level) {}
 
   /**
+   * Copy constructor copies only the state
+   */
+  vertex(const vertex& other) {
+    dout<<"copy constructor "<<*other.st<<std::endl;
+    st = new game_state(*other.st);
+  }
+
+  /**
+   * Move constructor moves every pointer and sets source pointers to null
+   */
+  vertex(vertex& other) {
+    dout<<"move constructor "<<*other.st<<std::endl;
+    level = other.level;
+    vd = other.vd;
+    parent_vd = other.vd;
+    st = other.st;
+    g = other.g;
+    children_added = other.children_added;
+
+    other.level = -1;
+    other.vd = 0;
+    other.parent_vd = 0;
+    other.st = nullptr;
+    other.g = nullptr;
+    other.children_added = false;
+  }
+  /**
+   * Copy assignment copies only the state
+   */
+  vertex& operator=(const vertex& other) {
+    dout<<"copy assignment "<<std::endl;
+    st = new game_state(*other.st);
+    return *this;
+  }
+
+  /**
+   * Move assignment moves every pointer and sets source pointers to null
+   */
+  vertex& operator=(vertex&& other) {
+    dout<<"move assignment "<<*other.st<<std::endl;
+    level = other.level;
+    vd = other.vd;
+    parent_vd = other.vd;
+    st = other.st;
+    g = other.g;
+    children_added = other.children_added;
+
+    other.level = -1;
+    other.vd = 0;
+    other.parent_vd = 0;
+    other.st = nullptr;
+    other.g = nullptr;
+    other.children_added = false;
+
+    return *this;
+  }
+
+  /**
    * Returns reference to game_state object
    */
   game_state& get_game_state() { return *st; }
@@ -76,12 +134,15 @@ public:
    * Removes all outgoing edges and child vertices recursively
    */
   ~vertex() {
-    dout<<"destructor for "<<get_state()<<std::endl;
+    dout<<"destructor";
+    if(st)
+      dout<<" for "<<get_state();
+    dout<<std::endl;
     //TODO: remove child vertices
     if (children_added) {
       auto itpair = get_children();
       std::vector<vertex_descriptor> toremove;
-      for_each(itpair.first,itpair.second,[&](auto vert) {
+      for_each(itpair.first,itpair.second,[&](auto &vert) {
         toremove.push_back(vert.get_vd());
       });
       //remove all out edges
@@ -169,7 +230,7 @@ private:
   void _add_children(It begin, It end) {
     for_each(begin, end, [&](game_state *st) {
       auto tvd = boost::add_vertex(*g);
-      (*g)[tvd] = vertex_property(st, tvd, vd, level+1, g);
+      (*g)[tvd] = std::move(vertex_property(st, tvd, vd, level+1, g));
       boost::add_edge(vd, tvd, *g);
     });
   }
@@ -242,7 +303,7 @@ public:
    */
   game_tree(game_state* st) {
     root_vertex = cur_vertex = boost::add_vertex(g);
-    g[root_vertex] = vertex_property(st, root_vertex, 0, 0, &g);
+    g[root_vertex] = std::move(vertex_property(st, root_vertex, 0, 0, &g));
   }
 
   /**
@@ -252,7 +313,7 @@ public:
   game_tree() {
     game_state* st = new game_state();
     root_vertex = cur_vertex = boost::add_vertex(g);
-    g[root_vertex] = vertex_property(st, root_vertex, 0, 0, &g);
+    g[root_vertex] = std::move(vertex_property(st, root_vertex, 0, 0, &g));
   }
   
   game_tree(const game_tree& otherTree);
