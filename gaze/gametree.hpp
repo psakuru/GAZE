@@ -42,8 +42,8 @@ public:
   typedef vertex<game_tree> vertex_property;
   typedef typename boost::graph_traits<graph>::out_edge_iterator graph_edge_it;
   typedef typename gaze::viterator<game_tree> vertex_iterator;
-  typedef size_t degree_size_type;
   typedef typename game_tree::state_value_type value_type;
+  typedef typename game_tree::degree_size_type degree_size_type;
 
   typedef typename boost::graph_traits<graph>::vertex_descriptor vertex_descriptor;
 
@@ -53,7 +53,12 @@ public:
 
   game_state& get_game_state() { return *st; }
   vertex_descriptor get_vd() { return vd; }
-  vertex& get_parent() { return (*g)[parent_vd]; }
+  vertex& get_parent() {
+    if(parent_vd)
+      return (*g)[parent_vd];
+    return *this;
+  }
+
   ~vertex() {
     dout<<"destructor for "<<get_state()<<std::endl;
     //TODO: remove child vertices
@@ -89,7 +94,7 @@ public:
 
   game_state& get_state() { return *st; }
 
-  size_t get_children_count() {
+  degree_size_type get_children_count() {
     if(!children_added) {
       add_children();
     }
@@ -123,7 +128,8 @@ private:
   }
 
   int level=0;
-  vertex_descriptor vd, parent_vd;
+  vertex_descriptor vd=0;
+  vertex_descriptor parent_vd=0;
   game_state* st = nullptr;
   graph* g = nullptr;
   bool children_added = false;
@@ -138,6 +144,7 @@ public:
   typedef boost::adjacency_list<boost::listS, boost::listS, boost::directedS,
                         vertex_property> graph;
   typedef typename boost::graph_traits<graph>::vertex_descriptor vertex_descriptor;
+  typedef typename boost::graph_traits<graph>::degree_size_type degree_size_type;
 
   typedef typename vertex_property::vertex_iterator vertex_iterator;
 
