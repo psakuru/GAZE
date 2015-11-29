@@ -74,13 +74,14 @@ class gameState{
       return 0;
     }
 
-    std::vector<gameState*> &get_children(){
+    std::unique_ptr<std::vector<gameState*>> get_children(){
       std::vector<int> blnks = get_blanks();
-      auto v = new std::vector<gameState*>;
+      //auto v = new std::vector<gameState*>;
+      std::unique_ptr<std::vector<gameState*>> v(new std::vector<gameState*>);
 
       if(this->get_value() == gameState::max_state_value() ||
           this->get_value() == gameState::min_state_value())
-        return *v;
+        return v;
 
       gameState::option next = (blnks.size() % 2 == 1)? gameState::option::X :
                                                         gameState::option::O;
@@ -89,7 +90,7 @@ class gameState{
         gs->set_square(i,next);
         v->push_back(gs);
       });
-      return *v;
+      return v;
     }
 
     bool operator==(const gameState& vt) {
@@ -156,7 +157,7 @@ int main(){
     cout<<pair_i.first<<endl;
     cout<<*pair_i.second<<endl;
     player1 = !player1;
-    pair_i = gaze::alphabeta(gt, 1, INT_MIN, INT_MAX, player1, *pair_i.second);
+    pair_i = gaze::alphabeta(gt, 2, INT_MIN, INT_MAX, player1, *pair_i.second);
   }
   
   return 0;

@@ -63,10 +63,10 @@ void play(game_tree& gt, int level)
     for(int i=0;i!=index;i++) it_pair.first++;
 
     cout<<"for "<<cur_vert.get_state()<<" commit "<<(*it_pair.first).get_state()<<endl;
-    cout<<"before removal"<<std::endl;
+    cout<<"before removal"<<endl;
     cout<<gt<<endl;
     gt.set_current_state((*it_pair.first).get_state());
-    cout<<"after removal"<<std::endl;
+    cout<<"after removal"<<endl;
     cout<<gt<<endl;
   }
 }
@@ -94,7 +94,7 @@ void print_vd(graph& g)
 }
 
 void test_make_tree() {
-  cout<<"test_make_tree"<<std::endl;
+  cout<<"test_make_tree"<<endl;
   nodecount=0;
   gaze::game_tree<state> gt(new state(0));
   auto &vertex = gt.get_root_vertex();
@@ -105,21 +105,38 @@ void test_make_tree() {
   make_tree(vertex, 3);
   cout<<endl;
   cout<<(gt)<<endl;
-  cout<<"------------------"<<std::endl;
+  cout<<"------------------"<<endl;
 }
 
 void test_game_play() {
-  cout<<"test_game_play"<<std::endl;
+  cout<<"test_game_play"<<endl;
   nodecount=0;
   gaze::game_tree<state> gt(new state(0));
   play(gt, 4);
   cout<<(gt)<<endl;
-  cout<<"------------------"<<std::endl;
+  cout<<"------------------"<<endl;
+}
+
+void test_remove_vert() {
+  cout<<"test_remove_vert"<<endl;
+  gaze::game_tree<state> gt(new state(0));
+  auto &root = gt.get_root_vertex();
+  make_tree(root, 5);
+  cout<<"after tree is formed"<<endl;
+  cout<<gt<<endl;
+  for(int i=0;i<4;i++) {
+    auto itpair = gt.get_current_vertex().get_children();
+    auto &st = (*itpair.first).get_state();
+    cout<<"after setting "<<st<<endl;
+    gt.set_current_state((*itpair.first).get_state());
+    cout<<gt<<endl;
+  }
 }
 gaze::game_tree<state> *gt;
 void init() {
-  test_make_tree();
-  test_game_play();
+  //test_make_tree();
+  //test_game_play();
+  test_remove_vert();
 }
 int main()
 {

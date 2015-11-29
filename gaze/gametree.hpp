@@ -62,6 +62,18 @@ public:
   ~vertex() {
     dout<<"destructor for "<<get_state()<<std::endl;
     //TODO: remove child vertices
+    if (children_added) {
+      auto itpair = get_children();
+      std::vector<vertex_descriptor> toremove;
+      for_each(itpair.first,itpair.second,[&](auto vert) {
+        toremove.push_back(vert.get_vd());
+      });
+      //remove all out edges
+      boost::remove_out_edge_if(get_vd(), [](auto vd) { return true; }, *g);
+      for_each(toremove.begin(), toremove.end(), [&](auto vd) {
+        boost::remove_vertex(vd, *g);
+      });
+    }
     level = -1;
     vd = 0;
     parent_vd = 0;
