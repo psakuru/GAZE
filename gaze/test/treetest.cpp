@@ -126,8 +126,7 @@ void test_remove_vert() {
   cout<<gt<<endl;
   for(int i=0;i<4;i++) {
     auto itpair = gt.get_current_vertex().get_children();
-    auto &st = (*itpair.first).get_state();
-    cout<<"after setting "<<st<<endl;
+    cout<<"after setting "<<itpair.first->get_state()<<endl;
     gt.set_current_state((*itpair.first).get_state());
     cout<<gt<<endl;
   }

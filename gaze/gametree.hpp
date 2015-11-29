@@ -32,6 +32,9 @@ public:
   vertex& operator*() {
     return g[boost::target(*it, g)];
   }
+  vertex* operator->() {
+    return &g[boost::target(*it, g)];
+  }
 };
 
 template<typename game_tree>
@@ -205,10 +208,10 @@ public:
     vertex_descriptor vd(0);
     std::vector<vertex_descriptor> toremove;
     for(auto it=itpair.first;it!=itpair.second;it++){
-      if((*it).get_state() == committedstate){
-        vd = (*it).get_vd();
+      if(it->get_state() == committedstate){
+        vd = it->get_vd();
       }else
-        toremove.push_back((*it).get_vd());
+        toremove.push_back(it->get_vd());
     }
     if(vd==0)
       throw std::invalid_argument("No such state");
