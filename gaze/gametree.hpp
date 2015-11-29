@@ -54,14 +54,27 @@ public:
   vertex(game_state* st, vertex_descriptor vd, vertex_descriptor pvd, int level,
               graph* g): st(st), vd(vd), parent_vd(pvd), g(g), level(level) {}
 
+  /**
+   * Returns reference to game_state object
+   */
   game_state& get_game_state() { return *st; }
+  /**
+   * Returns vertex descriptor of current vertex
+   * Not to be used by algorithm and game developers
+   */
   vertex_descriptor get_vd() { return vd; }
+  /**
+   * Returns reference to parent vertex
+   */
   vertex& get_parent() {
     if(parent_vd)
       return (*g)[parent_vd];
     return *this;
   }
 
+  /**
+   * Removes all outgoing edges and child vertices recursively
+   */
   ~vertex() {
     dout<<"destructor for "<<get_state()<<std::endl;
     //TODO: remove child vertices
@@ -85,6 +98,11 @@ public:
     children_added = false;
   }
 
+  /**
+   * Returns an iterator pair to child vertices.
+   * The iterators are not stable if one of the vertices or edges
+   * are removed
+   */
   std::pair<vertex_iterator, vertex_iterator> get_children() {
     assert((*g)[vd]==(*this));
     if(!children_added){
@@ -107,8 +125,15 @@ public:
     return !(*this==vt);
   }
 
+  /**
+   * Returns reference to game_state object
+   */
   game_state& get_state() { return *st; }
 
+  /**
+   * Returns the number of child vertices.
+   * If child vertices are not yet added, they are added
+   */
   degree_size_type get_children_count() {
     if(!children_added) {
       add_children();
@@ -116,6 +141,9 @@ public:
     return boost::out_degree(vd, *g);
   }
 
+  /**
+   * Prints current vertex and all its children
+   */
   std::ostream& print(std::ostream& os) {
     os<<"("<<get_game_state()<<" ";
     if(children_added) {
@@ -126,11 +154,17 @@ public:
     return os;
   }
 
+  /**
+   * Returns value of the associated game_state
+   */
   value_type get_value() {
     return (*st).get_value(); 
   }
 
 private:
+  /**
+   * Low level method to add children, takes begin, end iterators
+   */
   template<class It>
   void _add_children(It begin, It end) {
     for_each(begin, end, [&](game_state *st) {
@@ -175,11 +209,17 @@ private:
     children_added = true;
   }
 
+  /* Depth of current vertex */
   int level=0;
+  /* Boost graph vertex descriptor of current vertex */
   vertex_descriptor vd=0;
+  /* Boost graph vertex descriptor of parent vertex */
   vertex_descriptor parent_vd=0;
+  /* User provided game_state */
   game_state *st;
+  /* Boost graph */
   graph *g;
+  /* Denotes if child vertices are found and added to current vertex */
   bool children_added = false;
 };
 
@@ -197,11 +237,18 @@ public:
   typedef typename vertex_property::vertex_iterator vertex_iterator;
 
 
+  /**
+   * Construct game tree with the provided game_state as initial state
+   */
   game_tree(game_state* st) {
     root_vertex = cur_vertex = boost::add_vertex(g);
     g[root_vertex] = vertex_property(st, root_vertex, 0, 0, &g);
   }
 
+  /**
+   * No argument constructor. To be called if a no argument
+   * constructor for game_state creates the first position game_state
+   */
   game_tree() {
     game_state* st = new game_state();
     root_vertex = cur_vertex = boost::add_vertex(g);
@@ -210,7 +257,10 @@ public:
   
   game_tree(const game_tree& otherTree);
 
-  //to be called for all moves
+  /**
+   * Sets current state.
+   * All the other sibling states are removed from graph
+   */
   void set_current_state(game_state& committedstate) {
     //dout<<"set_cur_state "<<committedstate<<std::endl;
     auto &vert = get_current_vertex();
