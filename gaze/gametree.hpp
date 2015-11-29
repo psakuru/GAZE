@@ -131,22 +131,55 @@ public:
   }
 
 private:
+  template<class It>
+  void _add_children(It begin, It end) {
+    for_each(begin, end, [&](game_state *st) {
+      auto tvd = boost::add_vertex(*g);
+      (*g)[tvd] = vertex_property(st, tvd, vd, level+1, g);
+      boost::add_edge(vd, tvd, *g);
+    });
+  }
+  /**
+   * When state.get_children() returns container object or reference,
+   * this function is called
+   */
+  template<class C>
+  void _add_children(C &container) {
+    _add_children(container.begin(), container.end());
+  }
+  /**
+   * When state.get_children() returns a unique_ptr of container,
+   * this function is called
+   */
+  template<typename C>
+  void _add_children(std::unique_ptr<C> container) {
+    _add_children(container->begin(), container->end());
+  }
+  /**
+   * When state.get_children() returns a pointer to container,
+   * this function is called
+   */
+  template<typename C>
+  void _add_children(C *container) {
+    _add_children(container->begin(), container->end());
+    delete container;
+  }
+  /**
+   * This function calls the specialized _add_children functions
+   * depending on whether state.get_children() returns a unique_ptr
+   * or pointer or just a container
+   */
   void add_children() {
     assert(!children_added);
-    auto container = st->get_children();
-    for(auto it=container->begin(); it!=container->end(); it++){
-      auto tvd = boost::add_vertex(*g);
-      (*g)[tvd] = vertex_property(*it, tvd, vd, level+1, g);
-      boost::add_edge(vd, tvd, *g);
-    }
+    _add_children(st->get_children());
     children_added = true;
   }
 
   int level=0;
   vertex_descriptor vd=0;
   vertex_descriptor parent_vd=0;
-  game_state* st = nullptr;
-  graph* g = nullptr;
+  game_state *st;
+  graph *g;
   bool children_added = false;
 };
 

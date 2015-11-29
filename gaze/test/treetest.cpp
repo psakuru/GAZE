@@ -20,7 +20,7 @@ class state {
 public:
   state(int no): nodeno(no) {}
   unique_ptr<vector<state*>> get_children() {
-    unique_ptr<vector<state*>> lst(new vector<state*>);
+    auto lst = make_unique<vector<state*>>();
     lst->push_back(new state(++nodecount));
     lst->push_back(new state(++nodecount));
     //lst.push_back(new state(++nodecount));
