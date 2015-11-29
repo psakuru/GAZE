@@ -65,7 +65,7 @@ public:
   /**
    * Move constructor moves every pointer and sets source pointers to null
    */
-  vertex(vertex& other) {
+  vertex(vertex&& other) {
     dout<<"move constructor "<<*other.st<<std::endl;
     level = other.level;
     vd = other.vd;

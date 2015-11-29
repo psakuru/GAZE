@@ -31,3 +31,4 @@ main
 
 gaze/test/treetest
 *.dSYM
+*.patch
