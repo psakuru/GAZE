@@ -20,9 +20,9 @@ class viterator : public std::iterator<std::forward_iterator_tag,
   typedef typename vertex::graph_edge_it graph_edge_it;
   typedef typename game_tree::graph graph;
   graph_edge_it it;
-  graph& g;
+  graph* g;
 public:
-  viterator(graph_edge_it it, graph& g): it(it), g(g){}
+  viterator(graph_edge_it it, graph* g): it(it), g(g){}
   viterator(const viterator &other): it(other.it), g(other.g) {}
   viterator& operator=(const viterator& rhs) { it = rhs.it; g = rhs.g; return *this; }
   viterator& operator++() {++it; return *this;};
@@ -30,10 +30,10 @@ public:
   bool operator==(const viterator& rhs) { return it==rhs.it; }
   bool operator!=(const viterator& rhs) { return it!=rhs.it; }
   vertex& operator*() {
-    return g[boost::target(*it, g)];
+    return (*g)[boost::target(*it, *g)];
   }
   vertex* operator->() {
-    return &g[boost::target(*it, g)];
+    return &(*g)[boost::target(*it, *g)];
   }
 };
 
@@ -113,8 +113,8 @@ public:
 
     boost::tie(begin_edge_it, end_edge_it) = boost::out_edges(vd, *g);
 
-    return std::make_pair(vertex_iterator(begin_edge_it, *g),
-                          vertex_iterator(end_edge_it, *g));
+    return std::make_pair(vertex_iterator(begin_edge_it, g),
+                          vertex_iterator(end_edge_it, g));
   }
 
   bool operator==(const vertex& vt) {
