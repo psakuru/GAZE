@@ -4,16 +4,25 @@
 
 using namespace std;
 
+template<typename T>
+class mycont {
+public:
+  vector<T> vec;
+  ~mycont() { cout<<"called destructor!!"<<endl; }
+  auto begin() { return vec.begin(); }
+  auto end() { return vec.end(); }
+  void push_back(T t) { vec.push_back(t); }
+};
+
 int nodecount=0;
 class state {
   int nodeno;
 public:
   state(int no): nodeno(no) {}
-  vector<state*>& get_children() {
-    //cout<<"get_children "<<nodeno<<endl;
-    vector<state*>& lst = *new vector<state*>();
-    lst.push_back(new state(++nodecount));
-    lst.push_back(new state(++nodecount));
+  unique_ptr<vector<state*>> get_children() {
+    unique_ptr<vector<state*>> lst(new vector<state*>);
+    lst->push_back(new state(++nodecount));
+    lst->push_back(new state(++nodecount));
     //lst.push_back(new state(++nodecount));
     return lst;
   }

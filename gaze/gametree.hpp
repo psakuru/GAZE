@@ -118,8 +118,8 @@ public:
 private:
   void add_children() {
     assert(!children_added);
-    auto &container = st->get_children();
-    for(auto it=container.begin(); it!=container.end(); it++){
+    auto container = st->get_children();
+    for(auto it=container->begin(); it!=container->end(); it++){
       auto tvd = boost::add_vertex(*g);
       (*g)[tvd] = vertex_property(*it, tvd, vd, level+1, g);
       boost::add_edge(vd, tvd, *g);
