@@ -375,7 +375,7 @@ public:
   vertex_property& get_root_vertex() {return g[root_vertex];}
   //returns the previously committed game_state, used by game designer
   game_state& get_current_state() {
-    return cur_vertex->get_game_state();
+    return get_current_vertex().get_game_state();
   }
   graph g;
 
