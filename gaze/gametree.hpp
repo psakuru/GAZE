@@ -304,7 +304,7 @@ public:
    */
   game_tree(game_state* st) {
     root_vertex = cur_vertex = boost::add_vertex(g);
-    g[root_vertex] = std::move(vertex_property(st, root_vertex, 0, 0, &g));
+    g[root_vertex] = std::move(vertex_property(st, root_vertex, invalid_vd, 0, &g));
   }
 
   /**
@@ -314,7 +314,7 @@ public:
   game_tree() {
     game_state* st = new game_state();
     root_vertex = cur_vertex = boost::add_vertex(g);
-    g[root_vertex] = std::move(vertex_property(st, root_vertex, 0, 0, &g));
+    g[root_vertex] = std::move(vertex_property(st, root_vertex, invalid_vd, 0, &g));
   }
   
   game_tree(const game_tree& otherTree);
@@ -358,7 +358,7 @@ public:
         dout<<"removed"<<std::endl;
       }
     }*/
-    vertex_descriptor vd(0);
+    vertex_descriptor vd(boost::graph_traits<graph>::null_vertex());
     std::vector<vertex_descriptor> toremove;
     for(auto it=itpair.first;it!=itpair.second;it++){
       if(it->get_state() == committedState){
@@ -392,6 +392,8 @@ public:
 private:
   vertex_descriptor cur_vertex;
   vertex_descriptor root_vertex;
+  vertex_descriptor invalid_vd = boost::graph_traits<graph>::null_vertex();
+
 };
 
 template<typename game_state>
