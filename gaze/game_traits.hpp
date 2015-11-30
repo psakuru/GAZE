@@ -7,7 +7,6 @@ namespace gaze{
  struct game_traits {
    typedef typename game_tree::vertex_property vertex_property;
    typedef typename game_tree::vertex_iterator vertex_iterator;
-   typedef typename game_tree::vertex_descriptor vertex_descriptor;
    typedef typename game_tree::game_state game_state;
    typedef typename game_tree::state_value_type state_value_type;
    typedef typename game_tree::vertex_property::degree_size_type degree_size_type;

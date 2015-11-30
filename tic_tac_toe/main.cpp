@@ -134,7 +134,7 @@ std::string print_square(gameState::option a) {
     else if(a == gameState::option::O)
       return "O";
     else
-      return "B";
+      return ".";
 }
 
 ostream& operator<<(ostream& os, const gameState& gt) {
