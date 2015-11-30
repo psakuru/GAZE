@@ -125,7 +125,7 @@ public:
    * Returns reference to parent vertex
    */
   vertex& get_parent() {
-    if(parent_vd)
+    if(parent_vd != boost::graph_traits<graph>::null_vertex())
       return (*g)[parent_vd];
     return *this;
   }
