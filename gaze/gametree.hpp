@@ -154,6 +154,7 @@ public:
     level = -1;
     vd = 0;
     parent_vd = 0;
+    delete st;
     st = nullptr;
     g = nullptr;
     children_added = false;
