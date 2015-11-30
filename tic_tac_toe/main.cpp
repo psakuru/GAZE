@@ -151,14 +151,17 @@ ostream& operator<<(ostream& os, const gameState& gt) {
 int main(){
   gaze::game_tree<gameState> gt;
   bool player1 = true;
-  auto pair_i = gaze::alphabeta(gt, 1, INT_MIN, INT_MAX, player1);
-  int i = 9;
-  while(i-- != 0){
-    cout<<pair_i.first<<endl;
-    cout<<*pair_i.second<<endl;
+  int move = 1;
+  auto pair_i = gaze::alphabeta(gt, 5, INT_MIN, INT_MAX, player1);
+  gameState x;  
+  while(pair_i.second->get_state() != x){
+    x = pair_i.second->get_state();
+    gt.set_current_state(x);
+    cout<<"Move "<<move++<<"\n"<<x<<endl;
     player1 = !player1;
-    pair_i = gaze::alphabeta(gt, 2, INT_MIN, INT_MAX, player1, *pair_i.second);
+    pair_i = gaze::alphabeta(gt, 5, INT_MIN, INT_MAX, player1);
+
   }
-  
+  cout<<"last move was \n"<<(pair_i.second)->get_state();
   return 0;
 }

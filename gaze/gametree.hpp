@@ -320,11 +320,19 @@ public:
   game_tree(const game_tree& otherTree);
 
   /**
+   * Sets current vertex.
+   * All the other sibling vertices are removed from graph
+   */
+  void set_current_vertex(vertex_property& committedVertex) {
+    set_current_state(committedVertex.get_state()); 
+  }
+
+  /**
    * Sets current state.
    * All the other sibling states are removed from graph
    */
-  void set_current_state(game_state& committedstate) {
-    //dout<<"set_cur_state "<<committedstate<<std::endl;
+  void set_current_state(game_state& committedState) {
+    //dout<<"set_cur_state "<<committedState<<std::endl;
     auto &vert = get_current_vertex();
     auto itpair = vert.get_children();
     //edge iterator is unstable after edge removal, so can't use below code
@@ -339,7 +347,7 @@ public:
       else
         dout<<(*next).get_state()<<std::endl;
 
-      if(child_vert.get_state()==committedstate){
+      if(child_vert.get_state()==committedState){
         dout<<"keeping "<<child_vert.get_state()<<std::endl;
         cur_vertex = child_vert.get_vd();
       } else {
@@ -353,7 +361,7 @@ public:
     vertex_descriptor vd(0);
     std::vector<vertex_descriptor> toremove;
     for(auto it=itpair.first;it!=itpair.second;it++){
-      if(it->get_state() == committedstate){
+      if(it->get_state() == committedState){
         vd = it->get_vd();
       }else
         toremove.push_back(it->get_vd());
