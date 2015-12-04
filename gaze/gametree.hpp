@@ -51,6 +51,7 @@ public:
   typedef typename boost::graph_traits<graph>::vertex_descriptor vertex_descriptor;
 
   vertex() {}
+private:
   vertex(game_state* st, vertex_descriptor vd, vertex_descriptor pvd, int level,
               graph* g): st(st), vd(vd), parent_vd(pvd), g(g), level(level) {}
 
@@ -112,15 +113,11 @@ public:
     return *this;
   }
 
+public:
   /**
    * Returns reference to game_state object
    */
   game_state& get_game_state() { return *st; }
-  /**
-   * Returns vertex descriptor of current vertex
-   * Not to be used by algorithm and game developers
-   */
-  vertex_descriptor get_vd() { return vd; }
   /**
    * Returns reference to parent vertex
    */
@@ -270,6 +267,13 @@ private:
     _add_children(st->get_children());
     children_added = true;
   }
+
+  /**
+   * Returns vertex descriptor of current vertex
+   * Not to be used by algorithm and game developers
+   */
+  vertex_descriptor get_vd() { return vd; }
+  friend game_tree;
 
   /* Depth of current vertex */
   int level=0;
