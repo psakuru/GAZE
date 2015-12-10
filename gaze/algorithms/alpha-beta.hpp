@@ -14,12 +14,11 @@ namespace gaze{
                         typename game_traits<game_tree>::state_value_type alpha,
                         typename game_traits<game_tree>::state_value_type beta,
                         bool player1) {
-    return alphabeta(gt_, depth, alpha, beta, player1, gt_.get_current_vertex());
+    return alphabeta<game_tree>(depth, alpha, beta, player1, gt_.get_current_vertex());
   }
 
   template<typename game_tree>
-  std::pair<int, typename game_traits<game_tree>::vertex_property*> alphabeta(
-                        game_tree& gt_,
+  std::pair<typename game_traits<game_tree>::state_value_type, typename game_traits<game_tree>::vertex_property*> alphabeta(
                         int depth_,
                         typename game_traits<game_tree>::state_value_type alpha,
                         typename game_traits<game_tree>::state_value_type beta,
@@ -38,7 +37,7 @@ namespace gaze{
       auto it_pair = cur_.get_children();
       for(; it_pair.first != it_pair.second; ++(it_pair.first)) {
         vert_ = &(*it_pair.first);
-        v_ = std::max(v_, alphabeta(gt_, depth_-1, alpha, beta, !player1, *vert_).first);
+        v_ = std::max(v_, alphabeta<game_tree>(depth_-1, alpha, beta, !player1, *vert_).first);
         alpha = std::max(alpha, v_);
         //std::cout<<"value p1 "<<v_<<std::endl;
         if(beta <= alpha)
@@ -50,7 +49,7 @@ namespace gaze{
       auto it_pair = cur_.get_children();
       for(; it_pair.first != it_pair.second; ++(it_pair.first)) {
         vert_ = &(*it_pair.first);
-        v_ = std::min(v_, alphabeta(gt_, depth_-1, alpha, beta, !player1, *vert_).first);
+        v_ = std::min(v_, alphabeta<game_tree>(depth_-1, alpha, beta, !player1, *vert_).first);
         //std::cout<<"value !p1 "<<v_<<std::endl;
         beta = std::min(beta, v_);
         if(beta <= alpha)
