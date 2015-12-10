@@ -3,12 +3,36 @@
 
 namespace gaze{ 
 
+ /**
+  * Container for holding asscoiated types of a Game Tree Concept
+  *
+  */
  template <typename game_tree>
  struct game_traits {
+
+   /**
+    * returns the type of the vertex held in the game tree
+    */
    typedef typename game_tree::vertex_property vertex_property;
+
+   /**
+    * returns the iterator type that iterates over the game tree vertices
+    */
    typedef typename game_tree::vertex_iterator vertex_iterator;
+
+   /**
+    * returns the type of the game state stored in each vertex
+    */
    typedef typename game_tree::game_state game_state;
+
+   /**
+    * returns the type of the value used to compare various game states
+    */
    typedef typename game_tree::state_value_type state_value_type;
+
+   /**
+    * returns the type out degree size returned by children_count
+    */
    typedef typename game_tree::vertex_property::degree_size_type degree_size_type;
  };
 
@@ -16,11 +40,3 @@ namespace gaze{
 
 #endif
 
-/*typedef typename game_tree::vertices_size_type     vertices_size_type;
-typedef typename game_tree::in_edge_iterator       in_edge_iterator;
-typedef typename game_tree::vertex_iterator        vertex_iterator;
-typedef typename game_tree::edge_iterator          edge_iterator;
-typedef typename game_tree::directed_category      directed_category;
-typedef typename game_tree::edge_parallel_category edge_parallel_category;
-typedef typename game_tree::traversal_category     traversal_category;
-typedef typename game_tree::edges_size_type        edges_size_type;*/

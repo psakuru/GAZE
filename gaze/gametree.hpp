@@ -82,6 +82,7 @@ private:
     other.g = nullptr;
     other.children_added = false;
   }
+
   /**
    * Copy assignment copies only the state
    */
@@ -114,10 +115,12 @@ private:
   }
 
 public:
+
   /**
    * Returns reference to game_state object
    */
   game_state& get_game_state() { return *st; }
+
   /**
    * Returns reference to parent vertex
    */
@@ -221,6 +224,7 @@ public:
   }
 
 private:
+
   /**
    * Low level method to add children, takes begin, end iterators
    */
@@ -232,6 +236,7 @@ private:
       boost::add_edge(vd, tvd, *g);
     });
   }
+
   /**
    * When state.get_children() returns container object or reference,
    * this function is called
@@ -240,6 +245,7 @@ private:
   void _add_children(C &container) {
     _add_children(container.begin(), container.end());
   }
+
   /**
    * When state.get_children() returns a unique_ptr of container,
    * this function is called
@@ -248,6 +254,7 @@ private:
   void _add_children(std::unique_ptr<C> container) {
     _add_children(container->begin(), container->end());
   }
+
   /**
    * When state.get_children() returns a pointer to container,
    * this function is called
@@ -257,6 +264,7 @@ private:
     _add_children(container->begin(), container->end());
     delete container;
   }
+
   /**
    * This function calls the specialized _add_children functions
    * depending on whether state.get_children() returns a unique_ptr
@@ -382,14 +390,18 @@ public:
         boost::remove_vertex(vd, g);
     });
   }
+  
   //returns the previously committed vetex, used by algo
   vertex_property& get_current_vertex() {return g[cur_vertex];}
+  
   //returns root vertex of the tree
   vertex_property& get_root_vertex() {return g[root_vertex];}
+
   //returns the previously committed game_state, used by game designer
   game_state& get_current_state() {
     return get_current_vertex().get_game_state();
   }
+
   graph g;
 
   std::ostream& print(std::ostream& os) {return os<<get_root_vertex();}
