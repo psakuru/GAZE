@@ -5,7 +5,7 @@
 using namespace std;
 
 static int nodecount=0;
-static int values[] = {3, 2, 4, 7, 9, 11, 13, 8, 6, 3, 4, 1, 100, 77, 89, 32};
+static int values[] = {3, 2, 4, 11, 13, 7, 9, 8, 6, 3, 4, 99, 100, 77, 89, 32};
 
 class state
 {
@@ -38,6 +38,7 @@ public:
 
   unique_ptr<vector<state*>> get_children() {
     auto lst = make_unique<vector<state*>>();
+
     lst->push_back(new state(++nodecount));
     lst->push_back(new state(++nodecount));
 
@@ -56,19 +57,21 @@ void alpha_beta_tests()
 {
   typedef gaze::game_tree<state> game_tree_t;
   game_tree_t gt;
+  assert(gt.get_current_vertex().get_value() == 3);
   auto pair_i = gaze::alphabeta<game_tree_t>(gt, 2, INT_MIN, INT_MAX, true);
-  assert(pair_i.first);
-  assert(pair_i.second);
+  assert(pair_i.first == 11); // node with value 13 is purged
+  assert((pair_i.second)->get_state() == state(1)); //left path is the path taken
 
   gt.set_current_state(pair_i.second->get_state());
   auto pair_i_2 = gaze::alphabeta<game_tree_t>(gt, 2, INT_MIN, INT_MAX, false);
-  assert(pair_i_2.first);
-  assert(pair_i_2.second);
+  assert(pair_i_2.first == 4);
+  assert(pair_i_2.second->get_state() == state(4));
 
   gt.set_current_state(pair_i_2.second->get_state());
   auto pair_i_3 = gaze::alphabeta<game_tree_t>(gt, 2, INT_MIN, INT_MAX, true);
-  assert(pair_i_3.first);
-  assert(pair_i_3.second);
+  assert(pair_i_3.first == 99);
+  assert(pair_i_3.second->get_state() == state(9));
+  
 }
 
 int main()
