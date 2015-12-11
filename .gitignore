@@ -30,5 +30,6 @@ main
 *.swp
 
 gaze/test/treetest
+gaze/test/alphabeta_test
 *.dSYM
 *.patch
