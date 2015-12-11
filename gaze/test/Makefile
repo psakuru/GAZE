@@ -1,5 +1,5 @@
 CXXFLAGS+=-std=c++14 -g
-all: treetest alphabeta_test
+all: treetest simulateplay alphabeta_test
 clean:
-	rm treetest alphabeta_test
+	rm treetest simulatedplay alphabeta_test
 

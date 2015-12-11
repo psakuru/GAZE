@@ -58,40 +58,6 @@ void make_tree(vertex& vt, int level)
 }
 
 /**
- * Simulates a game play by randomly choosing a child of
- * current vertex and setting it.
- */
-template<typename game_tree>
-void play(game_tree& gt, int level)
-{
-  for(;level>0;level--){
-    auto &cur_vert = gt.get_current_vertex();
-    auto it_pair = cur_vert.get_children();
-    int index = rand()%cur_vert.get_children_count();
-    for(int i=0;i!=index;i++) it_pair.first++;
-
-    cout<<"for "<<cur_vert.get_state()<<" commit "<<(*it_pair.first).get_state()<<endl;
-    cout<<"before removal"<<endl;
-    cout<<gt<<endl;
-    gt.set_current_state((*it_pair.first).get_state());
-    cout<<"after removal"<<endl;
-    cout<<gt<<endl;
-  }
-}
-
-/**
- * Runs a simulated game play for 4 levels
- */
-void test_game_play() {
-  cout<<"test_game_play"<<endl;
-  nodecount=0;
-  gaze::game_tree<state> gt(new state(0));
-  play(gt, 4);
-  cout<<(gt)<<endl;
-  cout<<"------------------"<<endl;
-}
-
-/**
  * Returns number of child vertices of a vertex
  */
 template<typename vertex>
@@ -312,19 +278,9 @@ void vertex_iterator_tests()
 /**
  * Runs unit tests for game_tree, vertex, vertex_iterator
  */
-void unit_tests()
+int main()
 {
   game_tree_tests();
   vertex_tests();
   vertex_iterator_tests();
-}
-
-gaze::game_tree<state> *gt;
-void init() {
-  unit_tests();
-  test_game_play();
-}
-int main()
-{
-  init();
 }

@@ -31,5 +31,6 @@ main
 
 gaze/test/treetest
 gaze/test/alphabeta_test
+gaze/test/simulateplay
 *.dSYM
 *.patch
