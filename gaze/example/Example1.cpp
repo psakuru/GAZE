@@ -26,6 +26,10 @@ public:
   int get_value() {
     return id;
   }
+
+  int is_game_end() {
+    return id>30;
+  }
   static const int min_state_value = INT_MIN;
   static const int max_state_value = INT_MAX;
 };
@@ -38,9 +42,10 @@ std::ostream& operator<<(std::ostream& os, state& st)
 int main()
 {
   gaze::game_tree<state> gt;
-  for(int i=0;i<10;i++) {
-    auto suggestion = gaze::alphabeta(gt, 2, INT_MIN, INT_MAX, i%2);
-    gt.set_current_state(suggestion.second->get_state());
-    std::cout<<gt<<std::endl;
+  for(bool i=true; !gt.get_current_state().is_game_end(); i=!i) {
+    auto result = gaze::alphabeta(gt, 2, INT_MIN, INT_MAX, i);
+    auto move = result.second->get_state();
+    std::cout<<"Move "<<move<<std::endl;
+    gt.set_current_state(move);
   }
 }
