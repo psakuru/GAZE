@@ -51,13 +51,8 @@ class gameState{
       squares[i] = option_;
     }
 
-    static int min_state_value() {
-      return INT_MIN;
-    }
-    
-    static int max_state_value() {
-      return INT_MAX;
-    }
+    static const int min_state_value = INT_MIN;
+    static const int max_state_value = INT_MAX;
 
     bool is_win() {
       bool ret = false;
@@ -78,9 +73,9 @@ class gameState{
             (squares[win_moves[i][0]] == squares[win_moves[i][1]] &&
              squares[win_moves[i][0]] == squares[win_moves[i][2]])) {
           if(squares[win_moves[i][0]] == gameState::option::X ) {
-            return gameState::max_state_value() - (9 - get_blanks().size());
+            return gameState::max_state_value - (9 - get_blanks().size());
           } else {
-            return gameState::min_state_value() + (9 - get_blanks().size());
+            return gameState::min_state_value + (9 - get_blanks().size());
           }
         }
       }
