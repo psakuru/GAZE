@@ -59,6 +59,19 @@ class gameState{
       return INT_MAX;
     }
 
+    bool is_win() {
+      bool ret = false;
+       for(int i = 0; i<8;i++){
+        if(squares[win_moves[i][0]] != gameState::option::B &&
+            (squares[win_moves[i][0]] == squares[win_moves[i][1]] &&
+             squares[win_moves[i][0]] == squares[win_moves[i][2]])) {
+          ret = true;
+          break;
+        }
+       }
+      return ret;
+    }
+
     int get_value() {
       for(int i = 0; i<8;i++){
         if(squares[win_moves[i][0]] != gameState::option::B &&
@@ -79,8 +92,7 @@ class gameState{
       //auto v = new std::vector<gameState*>;
       std::unique_ptr<std::vector<gameState*>> v(new std::vector<gameState*>);
 
-      if(this->get_value() == gameState::max_state_value() ||
-          this->get_value() == gameState::min_state_value())
+      if(is_win())
         return v;
 
       gameState::option next = (blnks.size() % 2 == 1)? gameState::option::X :
