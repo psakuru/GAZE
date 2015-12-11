@@ -40,18 +40,16 @@ namespace gaze{
       return std::make_pair(cur_.get_value(), &cur_);
     }
     
-    Vertex* vert_;
     Vertex* ret_;
     if(player1) {
       game_state_value v_ = game_traits<game_tree>::game_state::min_state_value();
       auto it_pair = cur_.get_children();
       ret_ = &(*it_pair.first);
       for(; it_pair.first != it_pair.second; ++(it_pair.first)) {
-        vert_ = &(*it_pair.first);
-        auto branch_pair = alphabeta<game_tree>(depth_-1, alpha, beta, !player1, *vert_);
+        auto branch_pair = alphabeta<game_tree>(depth_-1, alpha, beta, !player1, (*it_pair.first));
         v_ = std::max(v_, branch_pair.first);
         if(branch_pair.first == v_)
-          ret_ = vert_;
+          ret_ = &(*it_pair.first);
         alpha = std::max(alpha, v_);
         if(beta <= alpha)
           break;
@@ -62,11 +60,10 @@ namespace gaze{
       auto it_pair = cur_.get_children();
       ret_ = &(*it_pair.first);
       for(; it_pair.first != it_pair.second; ++(it_pair.first)) {
-        vert_ = &(*it_pair.first);
-        auto branch_pair = alphabeta<game_tree>(depth_-1, alpha, beta, !player1, *vert_);
+        auto branch_pair = alphabeta<game_tree>(depth_-1, alpha, beta, !player1, (*it_pair.first));
         v_ = std::min(v_, branch_pair.first);
         if(branch_pair.first == v_)
-          ret_ = vert_;
+          ret_ = &(*it_pair.first);
         beta = std::min(beta, v_);
         if(beta <= alpha)
           break;
