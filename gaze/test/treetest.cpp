@@ -4,16 +4,6 @@
 
 using namespace std;
 
-template<typename T>
-class mycont {
-public:
-  vector<T> vec;
-  ~mycont() { cout<<"called destructor!!"<<endl; }
-  auto begin() { return vec.begin(); }
-  auto end() { return vec.end(); }
-  void push_back(T t) { vec.push_back(t); }
-};
-
 int nodecount=0;
 class state {
   int nodeno;
