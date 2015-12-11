@@ -39,10 +39,10 @@ public:
     return res;
   }
   bool operator==(const viterator& rhs) {
-    return it==rhs.it;
+    return it==rhs.it && g==rhs.g;
   }
   bool operator!=(const viterator& rhs) {
-    return it!=rhs.it;
+    return !((*this)==rhs);
   }
   vertex& operator*() {
     return (*g)[boost::target(*it, *g)];

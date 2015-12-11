@@ -323,7 +323,37 @@ void vertex_iterator_tests()
 {
   gaze::game_tree<state> gt;
   auto it_pair = gt.get_current_vertex().get_children();
-  //for(int i=0;it_pair.first
+  auto it_pair2 = it_pair;
+  auto it_pair3 = it_pair2;
+  //Test operator++(int), operator++()
+  for(int i=0;it_pair.first!=it_pair.second;
+                          it_pair.first++, ++it_pair3.first, i++) {
+    //Test operator*
+    assert(it_pair.first == it_pair3.first);
+
+    auto &child = *it_pair.first;
+    if(i==0) {
+      assert(child.get_state() == state(1));
+      //Test operator->
+      assert(it_pair.first->get_state() == state(1));
+    }
+    else if(i==1) {
+      assert(child.get_state() == state(2));
+      //Test operator->
+      assert(it_pair.first->get_state() == state(2));
+    }
+    else
+      assert(1==0);//There should only be two children
+  }
+
+  //Test copy constructor, =, ==, !=
+  auto it_pair4 = it_pair;
+  assert(it_pair4.first == it_pair4.second);
+
+  auto it_pair5(it_pair);
+  assert(it_pair5.first == it_pair.first);
+
+  assert(it_pair2.first != it_pair.first);
 }
 
 /**
