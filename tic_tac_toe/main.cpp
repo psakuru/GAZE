@@ -65,9 +65,9 @@ class gameState{
             (squares[win_moves[i][0]] == squares[win_moves[i][1]] &&
              squares[win_moves[i][0]] == squares[win_moves[i][2]])) {
           if(squares[win_moves[i][0]] == gameState::option::X ) {
-            return gameState::max_state_value();
+            return gameState::max_state_value() - (9 - get_blanks().size());
           } else {
-            return gameState::min_state_value();
+            return gameState::min_state_value() + (9 - get_blanks().size());
           }
         }
       }
