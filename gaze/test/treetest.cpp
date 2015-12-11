@@ -26,7 +26,6 @@ public:
     auto lst = make_unique<vector<state*>>();
     lst->push_back(new state(++nodecount));
     lst->push_back(new state(++nodecount));
-    //lst.push_back(new state(++nodecount));
     return lst;
   }
   bool operator==(const state& other) { return nodeno == other.nodeno; }
@@ -43,11 +42,12 @@ ostream& operator<<(ostream& os, state& st)
   return os<<st.nodeno;
 }
 
+/**
+ * Forms a tree upto \level levels by calling get_children
+ */
 template<typename vertex>
 void make_tree(vertex& vt, int level)
 {
-  //cout<<string(2*(3-level), ' ');
-  //cout<<"make_tree "<<vt.get_state()<<" "<<level<<endl;
   if(!level)
     return;
 
@@ -55,10 +55,12 @@ void make_tree(vertex& vt, int level)
   for_each(it_pair.first, it_pair.second, [&](auto &vert) {
     make_tree(vert, level-1);
   });
-  //cout<<string(2*(3-level), ' ');
-  //cout<<"----"<<endl;
 }
 
+/**
+ * Simulates a game play by randomly choosing a child of
+ * current vertex and setting it.
+ */
 template<typename game_tree>
 void play(game_tree& gt, int level)
 {
@@ -76,44 +78,10 @@ void play(game_tree& gt, int level)
     cout<<gt<<endl;
   }
 }
-template<typename vertex>
-void print(vertex& vt, int level)
-{
-  if(!level)
-    return;
-  cout<<"("<<vt.get_state()<<": ";
-  auto it_pair = vt.get_children();
-  for_each(it_pair.first, it_pair.second, [&](auto &vert) {
-      print(vert, level-1);
-  });
-  cout<<")";
-}
 
-template<typename graph>
-void print_vd(graph& g)
-{
-  auto vert_pair = boost::vertices(g);
-  for_each(vert_pair.first, vert_pair.second, [&](auto vd) {
-    cout<<g[vd].get_state()<<"::"<<vd<<endl;
-  });
-  cout<<"==========="<<endl;
-}
-
-void test_make_tree() {
-  cout<<"test_make_tree"<<endl;
-  nodecount=0;
-  gaze::game_tree<state> gt(new state(0));
-  auto &vertex = gt.get_root_vertex();
-  make_tree(vertex, 3);
-  cout<<(gt)<<endl;
-  cout<<"=-------="<<endl;
-  make_tree(vertex, 3);
-  make_tree(vertex, 3);
-  cout<<endl;
-  cout<<(gt)<<endl;
-  cout<<"------------------"<<endl;
-}
-
+/**
+ * Runs a simulated game play for 4 levels
+ */
 void test_game_play() {
   cout<<"test_game_play"<<endl;
   nodecount=0;
@@ -121,21 +89,6 @@ void test_game_play() {
   play(gt, 4);
   cout<<(gt)<<endl;
   cout<<"------------------"<<endl;
-}
-
-void test_remove_vert() {
-  cout<<"test_remove_vert"<<endl;
-  gaze::game_tree<state> gt(new state(0));
-  auto &root = gt.get_root_vertex();
-  make_tree(root, 5);
-  cout<<"after tree is formed"<<endl;
-  cout<<gt<<endl;
-  for(int i=0;i<4;i++) {
-    auto itpair = gt.get_current_vertex().get_children();
-    cout<<"after setting "<<itpair.first->get_state()<<endl;
-    gt.set_current_state((*itpair.first).get_state());
-    cout<<gt<<endl;
-  }
 }
 
 /**
@@ -368,10 +321,8 @@ void unit_tests()
 
 gaze::game_tree<state> *gt;
 void init() {
-  //test_make_tree();
-  //test_game_play();
-  //test_remove_vert();
   unit_tests();
+  test_game_play();
 }
 int main()
 {

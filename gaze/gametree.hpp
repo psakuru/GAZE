@@ -13,6 +13,10 @@ namespace gaze {
 template<typename game_state>
 class game_tree;
 
+/**
+ * A ForwardIterator for iterating over game_vertex.
+ * Takes \game_tree as template parameter.
+ */
 template<typename game_tree>
 class viterator : public std::iterator<std::forward_iterator_tag,
                               typename game_tree::vertex_property> {
@@ -52,6 +56,10 @@ public:
   }
 };
 
+/**
+ * Implementation of Game Vertex concept.
+ * Takes \game_tree as template parameter
+ */
 template<typename game_tree>
 class game_vertex {
 public:
@@ -65,6 +73,10 @@ public:
 
   typedef typename boost::graph_traits<graph>::vertex_descriptor vertex_descriptor;
 
+  /**
+   * Default constructor. Not useful. Internal fields should be populated
+   * by copy assigning with another game_vertex or manually populated.
+   */
   game_vertex() {}
 private:
   game_vertex(game_state* st, vertex_descriptor vd, vertex_descriptor pvd, int level,
@@ -156,7 +168,6 @@ public:
     if(st)
       dout<<" for "<<get_state();
     dout<<std::endl;
-    //TODO: remove child vertices
     if (children_added) {
       auto itpair = get_children();
       std::vector<vertex_descriptor> toremove;
@@ -324,6 +335,10 @@ private:
   bool children_added = false;
 };
 
+/**
+ * Implementation of Game Tree concept.
+ * Takes \game_state as template specialization
+ */
 template<typename state>
 class game_tree {
 public:
@@ -437,6 +452,7 @@ public:
   }
 
   std::ostream& print(std::ostream& os) {return os<<get_root_vertex();}
+
 private:
   graph g;
   vertex_descriptor cur_vertex;
@@ -445,41 +461,18 @@ private:
 
 };
 
+/**
+ * operator<< for game_tree
+ */
 template<typename game_state>
 std::ostream& operator<<(std::ostream& os, game_tree<game_state>& t)
 {
-#define PRINT 1
-#if PRINT
   return t.print(os);
-#else
-  typedef typename game_tree<game_state>::graph graph;
-
-  typedef typename boost::graph_traits<graph> GraphTraits;
-  typename GraphTraits::out_edge_iterator out_i, out_end;
-  typedef typename boost::graph_traits<graph>::vertex_descriptor Vertex;
-  typedef typename boost::graph_traits<graph>::vertex_iterator vertex_iter;
-  typename GraphTraits::edge_descriptor e;
-
-  std::pair<vertex_iter, vertex_iter> vp;
-  graph& g = t.g;
-  vp = boost::vertices(g);
-  std::for_each(vp.first,vp.second,[&](auto p){
-    os<< g[p].get_state() << "->";
-    if(boost::out_degree(p, g)) {
-      for (boost::tie(out_i, out_end) = boost::out_edges(p, g);
-         out_i != out_end; ++out_i) {
-        e = *out_i;
-        Vertex src = boost::source(e, g), targ = boost::target(e, g);
-        os<< g[targ].get_state() << ",";
-      }
-    }
-    os<<std::endl;
-  });
-  os<< std::endl;
-  return os;
-#endif
 }
 
+/**
+ * operator<< for game_vertex
+ */
 template<typename game_tree>
 std::ostream& operator<<(std::ostream& os, game_vertex<game_tree>& t)
 {
