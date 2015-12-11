@@ -53,11 +53,11 @@ public:
 };
 
 template<typename game_tree>
-class vertex {
+class game_vertex {
 public:
   typedef typename game_tree::graph graph;
   typedef typename game_tree::game_state game_state;
-  typedef vertex<game_tree> vertex_property;
+  typedef game_vertex<game_tree> vertex_property;
   typedef typename boost::graph_traits<graph>::out_edge_iterator graph_edge_it;
   typedef typename gaze::viterator<game_tree> vertex_iterator;
   typedef typename game_tree::state_value_type value_type;
@@ -65,15 +65,15 @@ public:
 
   typedef typename boost::graph_traits<graph>::vertex_descriptor vertex_descriptor;
 
-  vertex() {}
+  game_vertex() {}
 private:
-  vertex(game_state* st, vertex_descriptor vd, vertex_descriptor pvd, int level,
+  game_vertex(game_state* st, vertex_descriptor vd, vertex_descriptor pvd, int level,
               graph* g): st(st), vd(vd), parent_vd(pvd), g(g), level(level) {}
 
   /**
    * Copy constructor copies only the state
    */
-  vertex(const vertex& other) {
+  game_vertex(const game_vertex& other) {
     dout<<"copy constructor "<<*other.st<<std::endl;
     st = new game_state(*other.st);
   }
@@ -81,7 +81,7 @@ private:
   /**
    * Move constructor moves every pointer and sets source pointers to null
    */
-  vertex(vertex&& other) {
+  game_vertex(game_vertex&& other) {
     dout<<"move constructor "<<*other.st<<std::endl;
     level = other.level;
     vd = other.vd;
@@ -101,7 +101,7 @@ private:
   /**
    * Copy assignment copies only the state
    */
-  vertex& operator=(const vertex& other) {
+  game_vertex& operator=(const game_vertex& other) {
     dout<<"copy assignment "<<std::endl;
     st = new game_state(*other.st);
     return *this;
@@ -110,7 +110,7 @@ private:
   /**
    * Move assignment moves every pointer and sets source pointers to null
    */
-  vertex& operator=(vertex&& other) {
+  game_vertex& operator=(game_vertex&& other) {
     dout<<"move assignment "<<*other.st<<std::endl;
     level = other.level;
     vd = other.vd;
@@ -141,7 +141,7 @@ public:
   /**
    * Returns reference to parent vertex
    */
-  vertex& get_parent() {
+  game_vertex& get_parent() {
     if(parent_vd != boost::graph_traits<graph>::null_vertex()) {
       return (*g)[parent_vd];
     }
@@ -151,7 +151,7 @@ public:
   /**
    * Removes all outgoing edges and child vertices recursively
    */
-  ~vertex() {
+  ~game_vertex() {
     dout<<"destructor";
     if(st)
       dout<<" for "<<get_state();
@@ -201,12 +201,12 @@ public:
    * Equality operator. Vertex formed by copy constructor/assignment operator
    * will not compare equal to original vertex.
    */
-  bool operator==(const vertex& vt) {
+  bool operator==(const game_vertex& vt) {
     return level==vt.level && vd==vt.vd && parent_vd==vt.parent_vd &&
             st==vt.st && g==vt.g && children_added == vt.children_added;
   }
 
-  bool operator!=(const vertex& vt) {
+  bool operator!=(const game_vertex& vt) {
     return !(*this==vt);
   }
 
@@ -329,7 +329,7 @@ class game_tree {
 public:
   typedef state game_state;
   typedef decltype(((game_state*)nullptr)->get_value()) state_value_type;
-  typedef vertex<game_tree> vertex_property;
+  typedef game_vertex<game_tree> vertex_property;
   typedef boost::adjacency_list<boost::listS, boost::listS, boost::directedS,
                         vertex_property> graph;
   typedef typename boost::graph_traits<graph>::vertex_descriptor vertex_descriptor;
@@ -481,7 +481,7 @@ std::ostream& operator<<(std::ostream& os, game_tree<game_state>& t)
 }
 
 template<typename game_tree>
-std::ostream& operator<<(std::ostream& os, vertex<game_tree>& t)
+std::ostream& operator<<(std::ostream& os, game_vertex<game_tree>& t)
 {
  return t.print(os);
 }
