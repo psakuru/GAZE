@@ -24,11 +24,26 @@ class viterator : public std::iterator<std::forward_iterator_tag,
 public:
   viterator(graph_edge_it it, graph* g): it(it), g(g){}
   viterator(const viterator &other): it(other.it), g(other.g) {}
-  viterator& operator=(const viterator& rhs) { it = rhs.it; g = rhs.g; return *this; }
-  viterator& operator++() {++it; return *this;};
-  viterator operator++(int) {viterator res(*this); ++(*this); return res;}
-  bool operator==(const viterator& rhs) { return it==rhs.it; }
-  bool operator!=(const viterator& rhs) { return it!=rhs.it; }
+  viterator& operator=(const viterator& rhs) {
+    it = rhs.it;
+    g = rhs.g;
+    return *this;
+  }
+  viterator& operator++() {
+    ++it;
+    return *this;
+  };
+  viterator operator++(int) {
+    viterator res(*this);
+    ++(*this);
+    return res;
+  }
+  bool operator==(const viterator& rhs) {
+    return it==rhs.it;
+  }
+  bool operator!=(const viterator& rhs) {
+    return it!=rhs.it;
+  }
   vertex& operator*() {
     return (*g)[boost::target(*it, *g)];
   }
@@ -70,7 +85,7 @@ private:
     dout<<"move constructor "<<*other.st<<std::endl;
     level = other.level;
     vd = other.vd;
-    parent_vd = other.vd;
+    parent_vd = other.parent_vd;
     st = other.st;
     g = other.g;
     children_added = other.children_added;
@@ -99,7 +114,7 @@ private:
     dout<<"move assignment "<<*other.st<<std::endl;
     level = other.level;
     vd = other.vd;
-    parent_vd = other.vd;
+    parent_vd = other.parent_vd;
     st = other.st;
     g = other.g;
     children_added = other.children_added;
@@ -119,14 +134,17 @@ public:
   /**
    * Returns reference to game_state object
    */
-  game_state& get_game_state() { return *st; }
+  game_state& get_state() {
+    return *st;
+  }
 
   /**
    * Returns reference to parent vertex
    */
   vertex& get_parent() {
-    if(parent_vd != boost::graph_traits<graph>::null_vertex())
+    if(parent_vd != boost::graph_traits<graph>::null_vertex()) {
       return (*g)[parent_vd];
+    }
     return *this;
   }
 
@@ -179,18 +197,18 @@ public:
                           vertex_iterator(end_edge_it, g));
   }
 
+  /**
+   * Equality operator. Vertex formed by copy constructor/assignment operator
+   * will not compare equal to original vertex.
+   */
   bool operator==(const vertex& vt) {
-    return vd==vt.vd && *st==*vt.st && children_added == vt.children_added;
+    return level==vt.level && vd==vt.vd && parent_vd==vt.parent_vd &&
+            st==vt.st && g==vt.g && children_added == vt.children_added;
   }
 
   bool operator!=(const vertex& vt) {
     return !(*this==vt);
   }
-
-  /**
-   * Returns reference to game_state object
-   */
-  game_state& get_state() { return *st; }
 
   /**
    * Returns the number of child vertices.
@@ -207,7 +225,7 @@ public:
    * Prints current vertex and all its children
    */
   std::ostream& print(std::ostream& os) {
-    os<<"("<<get_game_state()<<" ";
+    os<<"("<<get_state()<<" ";
     if(children_added) {
       auto it_pair = get_children();
       for_each(it_pair.first, it_pair.second, [&](auto &vert){ os<<vert; });
@@ -221,6 +239,13 @@ public:
    */
   value_type get_value() {
     return (*st).get_value(); 
+  }
+
+  /**
+   * Returns if children for the vertex are added
+   */
+  bool are_children_added() {
+    return children_added;
   }
 
 private:
@@ -280,7 +305,9 @@ private:
    * Returns vertex descriptor of current vertex
    * Not to be used by algorithm and game developers
    */
-  vertex_descriptor get_vd() { return vd; }
+  vertex_descriptor get_vd() {
+    return vd;
+  }
   friend game_tree;
 
   /* Depth of current vertex */
@@ -399,13 +426,19 @@ public:
 
   //returns the previously committed game_state, used by game designer
   game_state& get_current_state() {
-    return get_current_vertex().get_game_state();
+    return get_current_vertex().get_state();
   }
 
-  graph g;
+  /**
+   * Not part of Game Tree concept. But useful for testing/analysis
+   */
+  graph& get_graph() {
+    return g;
+  }
 
   std::ostream& print(std::ostream& os) {return os<<get_root_vertex();}
 private:
+  graph g;
   vertex_descriptor cur_vertex;
   vertex_descriptor root_vertex;
   vertex_descriptor invalid_vd = boost::graph_traits<graph>::null_vertex();
@@ -431,13 +464,13 @@ std::ostream& operator<<(std::ostream& os, game_tree<game_state>& t)
   graph& g = t.g;
   vp = boost::vertices(g);
   std::for_each(vp.first,vp.second,[&](auto p){
-    os<< g[p].get_game_state() << "->";
+    os<< g[p].get_state() << "->";
     if(boost::out_degree(p, g)) {
       for (boost::tie(out_i, out_end) = boost::out_edges(p, g);
          out_i != out_end; ++out_i) {
         e = *out_i;
         Vertex src = boost::source(e, g), targ = boost::target(e, g);
-        os<< g[targ].get_game_state() << ",";
+        os<< g[targ].get_state() << ",";
       }
     }
     os<<std::endl;
