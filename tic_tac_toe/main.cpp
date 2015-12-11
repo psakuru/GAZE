@@ -164,14 +164,14 @@ int main(){
   gaze::game_tree<gameState> gt;
   bool player1 = true;
   int move = 1;
-  auto pair_i = gaze::alphabeta(gt, 5, INT_MIN, INT_MAX, player1);
+  auto pair_i = gaze::alphabeta(gt, 2, INT_MIN, INT_MAX, player1);
   gameState x;  
   while(pair_i.second->get_state() != x){
     x = pair_i.second->get_state();
     gt.set_current_state(x);
     cout<<"Move "<<move++<<"\n"<<x<<endl;
     player1 = !player1;
-    pair_i = gaze::alphabeta(gt, 5, INT_MIN, INT_MAX, player1);
+    pair_i = gaze::alphabeta(gt, 2, INT_MIN, INT_MAX, player1);
 
   }
   cout<<"last move was \n"<<(pair_i.second)->get_state();
