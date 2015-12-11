@@ -86,7 +86,6 @@ private:
    * Copy constructor copies only the state
    */
   game_vertex(const game_vertex& other) {
-    dout<<"copy constructor "<<*other.st<<std::endl;
     st = new game_state(*other.st);
   }
 
@@ -94,7 +93,6 @@ private:
    * Move constructor moves every pointer and sets source pointers to null
    */
   game_vertex(game_vertex&& other) {
-    dout<<"move constructor "<<*other.st<<std::endl;
     level = other.level;
     vd = other.vd;
     parent_vd = other.parent_vd;
@@ -114,7 +112,6 @@ private:
    * Copy assignment copies only the state
    */
   game_vertex& operator=(const game_vertex& other) {
-    dout<<"copy assignment "<<std::endl;
     st = new game_state(*other.st);
     return *this;
   }
@@ -123,7 +120,6 @@ private:
    * Move assignment moves every pointer and sets source pointers to null
    */
   game_vertex& operator=(game_vertex&& other) {
-    dout<<"move assignment "<<*other.st<<std::endl;
     level = other.level;
     vd = other.vd;
     parent_vd = other.parent_vd;
@@ -164,10 +160,6 @@ public:
    * Removes all outgoing edges and child vertices recursively
    */
   ~game_vertex() {
-    dout<<"destructor";
-    if(st)
-      dout<<" for "<<get_state();
-    dout<<std::endl;
     if (children_added) {
       auto itpair = get_children();
       std::vector<vertex_descriptor> toremove;
