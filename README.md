@@ -1,2 +1,3 @@
-# alpha-beta
-Trial run at Alpha Beta pruning with Boost Graph Lib
+# Gaze - A framework for perfect information games
+
+The documentation and user guide can be found at https://sites.google.com/site/gazedocs/
