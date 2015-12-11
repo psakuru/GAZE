@@ -15,7 +15,7 @@ class game_tree;
 
 /**
  * A ForwardIterator for iterating over game_vertex.
- * Takes \game_tree as template parameter.
+ * Takes game_tree as template parameter.
  */
 template<typename game_tree>
 class viterator : public std::iterator<std::forward_iterator_tag,
@@ -58,7 +58,7 @@ public:
 
 /**
  * Implementation of Game Vertex concept.
- * Takes \game_tree as template parameter
+ * Takes game_tree as template parameter
  */
 template<typename game_tree>
 class game_vertex {
@@ -337,7 +337,7 @@ private:
 
 /**
  * Implementation of Game Tree concept.
- * Takes \game_state as template specialization
+ * Takes game_state as template specialization
  */
 template<typename state>
 class game_tree {
@@ -370,8 +370,21 @@ public:
     root_vertex = cur_vertex = boost::add_vertex(g);
     g[root_vertex] = std::move(vertex_property(st, root_vertex, invalid_vd, 0, &g));
   }
-  
-  game_tree(const game_tree& otherTree);
+
+  /**
+   * Copy construction not supported
+   */
+  game_tree(const game_tree& otherTree) = delete;
+
+  /**
+   * Assignment not supported
+   */
+  game_tree& operator=(const game_tree& otherTree) = delete;
+
+  /**
+   * Equality operator not supported
+   */
+  bool operator==(const game_tree& otherTree) = delete;
 
   /**
    * Sets current vertex.
@@ -433,13 +446,23 @@ public:
     });
   }
   
-  //returns the previously committed vetex, used by algo
-  vertex_property& get_current_vertex() {return g[cur_vertex];}
+  /**
+   * Returns the previously committed vetex, used by algo
+   */
+  vertex_property& get_current_vertex() {
+    return g[cur_vertex];
+  }
   
-  //returns root vertex of the tree
-  vertex_property& get_root_vertex() {return g[root_vertex];}
+  /**
+   * Returns root vertex of the tree
+   */
+  vertex_property& get_root_vertex() {
+    return g[root_vertex];
+  }
 
-  //returns the previously committed game_state, used by game designer
+  /**
+   * Returns the previously committed game_state, used by game designer
+   */
   game_state& get_current_state() {
     return get_current_vertex().get_state();
   }
@@ -451,7 +474,12 @@ public:
     return g;
   }
 
-  std::ostream& print(std::ostream& os) {return os<<get_root_vertex();}
+  /**
+   * Prints the game tree. Used by operator<<
+   */
+  std::ostream& print(std::ostream& os) {
+    return os<<get_root_vertex();
+  }
 
 private:
   graph g;
