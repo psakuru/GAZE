@@ -6,7 +6,7 @@
 #include<vector>
 
 #define DEBUG 0
-#include "../logging.hpp"
+#include "../misc/logging.hpp"
 
 namespace gaze {
 
