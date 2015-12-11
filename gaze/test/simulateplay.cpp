@@ -68,8 +68,12 @@ void play(game_tree& gt, int level)
  */
 int main()
 {
+  int levels;
+  cout<<"Input number of moves to test for:";
+  cin>>levels;
+
   nodecount=0;
   gaze::game_tree<state> gt(new state(0));
-  play(gt, 4);
+  play(gt, levels);
   cout<<(gt)<<endl;
 }
