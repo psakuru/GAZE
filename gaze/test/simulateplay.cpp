@@ -64,7 +64,7 @@ void play(game_tree& gt, int level)
 }
 
 /**
- * Runs a simulated game play for 4 levels
+ * Runs a simulated game play for user specified number of levels
  */
 int main()
 {
