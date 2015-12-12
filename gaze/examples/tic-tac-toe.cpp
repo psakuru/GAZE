@@ -10,8 +10,8 @@
 #include<vector>
 #include<climits>
 #include<memory>
-#include"../gametree.hpp"
-#include"../algorithms/alpha-beta.hpp"
+#include<gaze/gametree.hpp>
+#include<gaze/algorithms/alpha-beta.hpp>
 
 using namespace std;
 
