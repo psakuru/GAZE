@@ -1,7 +1,7 @@
 #include<iostream>
 #include<vector>
-#include <gaze/gametree.hpp>
-#include <gaze/algorithms/alpha-beta.hpp>
+#include<gaze/gametree.hpp>
+#include<gaze/algorithms/alpha-beta.hpp>
 
 static int nodecount=0;
 
