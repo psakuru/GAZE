@@ -76,18 +76,18 @@ class gameState{
 
   int get_value() {
       int score = 0;
-      score += evaluateLine(0, 1, 2);  // row 0
-      score += evaluateLine(3, 4, 5);  // row 1
-      score += evaluateLine(6, 7, 8);  // row 2
-      score += evaluateLine(0, 3, 6);  // col 0
-      score += evaluateLine(1, 4, 7);  // col 1
-      score += evaluateLine(2, 5, 8);  // col 2
-      score += evaluateLine(0, 4, 8);  // diagonal
-      score += evaluateLine(2, 4, 6);  // alternate diagonal
+      score += evaluate_line(0, 1, 2);  // row 0
+      score += evaluate_line(3, 4, 5);  // row 1
+      score += evaluate_line(6, 7, 8);  // row 2
+      score += evaluate_line(0, 3, 6);  // col 0
+      score += evaluate_line(1, 4, 7);  // col 1
+      score += evaluate_line(2, 5, 8);  // col 2
+      score += evaluate_line(0, 4, 8);  // diagonal
+      score += evaluate_line(2, 4, 6);  // alternate diagonal
       return score;
    }
 
-   int evaluateLine(int row1, int row2, int row3) {
+   int evaluate_line(int row1, int row2, int row3) {
       int score = 0;
       gameState::option mySeed =  gameState::option::X;
       gameState::option oppSeed =  gameState::option::O;
